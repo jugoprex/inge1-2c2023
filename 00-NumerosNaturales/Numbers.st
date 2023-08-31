@@ -19,6 +19,24 @@ I class
 + unNumero
 	^unNumero next! !
 
+!I class methodsFor: 'as yet unclassified' stamp: 'JG 8/31/2023 18:15:08'!
+- unNumero
+	^self error: self descripcionDeErrorDeNumerosNegativosNoSoportados! !
+
+!I class methodsFor: 'as yet unclassified' stamp: 'JG 8/31/2023 18:19:19'!
+/ unNumero
+	(unNumero mayor: self)
+	ifTrue: [^self error: self descripcionDeErrorDeNoSePuedeDividirPorUnNumeroMayor].
+	^ unNumero! !
+
+!I class methodsFor: 'as yet unclassified' stamp: 'JG 8/31/2023 18:19:30'!
+descripcionDeErrorDeNoSePuedeDividirPorUnNumeroMayor
+	^'descripcionDeErrorDeNoSePuedeDividirPorUnNumeroMayor'! !
+
+!I class methodsFor: 'as yet unclassified' stamp: 'JG 8/31/2023 18:15:30'!
+descripcionDeErrorDeNumerosNegativosNoSoportados
+	^'descripcionDeErrorDeNumerosNegativosNoSoportados'! !
+
 !I class methodsFor: 'as yet unclassified' stamp: 'FS 8/30/2023 19:29:58'!
 mayor: unNumero
 	^false! !
@@ -35,7 +53,7 @@ restateA: unNumero
 	^unNumero previous! !
 
 
-!I class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
+!I class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
@@ -53,7 +71,7 @@ DenotativeObject subclass: #II
 
 !classDefinition: 'II class' category: 'Numbers'!
 II class
-	instanceVariableNames: 'previous next cuantasRestasVamos'!
+	instanceVariableNames: 'previous next'!
 
 !II class methodsFor: 'as yet unclassified' stamp: 'FS 8/30/2023 19:43:45'!
 * unNumero
@@ -67,18 +85,24 @@ II class
 - unNumero
 	^unNumero  restateA: self! !
 
-!II class methodsFor: 'as yet unclassified' stamp: 'FS 8/30/2023 19:36:00'!
+!II class methodsFor: 'as yet unclassified' stamp: 'JG 8/31/2023 18:18:04'!
 / unNumero
+	(unNumero mayor: self)
+	ifTrue: [^self error: self descripcionDeErrorDeNoSePuedeDividirPorUnNumeroMayor].
+	(self = unNumero)
+	ifTrue: [^I].
 	(unNumero mayor: self - unNumero)
 	ifTrue: [^I].
 	^((self - unNumero) / (unNumero)) next! !
 
-!II class methodsFor: 'as yet unclassified' stamp: 'FS 8/30/2023 19:29:07'!
+!II class methodsFor: 'as yet unclassified' stamp: 'JG 8/31/2023 18:18:14'!
+descripcionDeErrorDeNoSePuedeDividirPorUnNumeroMayor
+	^ 'descripcionDeErrorDeNoSePuedeDividirPorUnNumeroMayor'! !
+
+!II class methodsFor: 'as yet unclassified' stamp: 'JG 8/31/2023 17:29:31'!
 mayor: unNumero
 	unNumero = I
-	ifTrue: [
-		self = I ifFalse: [^true]	. ^false
-	].
+	ifTrue: [self = I ifFalse: [^true]	. ^false	].
 	^(self - I mayor: unNumero - I)! !
 
 !II class methodsFor: 'as yet unclassified' stamp: 'FS 8/29/2023 20:32:33'!
@@ -101,13 +125,12 @@ restateA: unNumero
 	^unNumero previous - self previous! !
 
 
-!II class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
+!II class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := I.
-	next := III.
-	cuantasRestasVamos := I.! !
+	next := III.! !
 
 
 !classDefinition: #III category: 'Numbers'!
@@ -123,13 +146,12 @@ II subclass: #III
 III class
 	instanceVariableNames: ''!
 
-!III class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
+!III class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := II.
-	next := IIII.
-	cuantasRestasVamos := nil.! !
+	next := IIII.! !
 
 
 !classDefinition: #IIII category: 'Numbers'!
@@ -145,13 +167,12 @@ II subclass: #IIII
 IIII class
 	instanceVariableNames: ''!
 
-!IIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
+!IIII class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := III.
-	next := IIIII.
-	cuantasRestasVamos := I.! !
+	next := IIIII.! !
 
 
 !classDefinition: #IIIII category: 'Numbers'!
@@ -167,13 +188,12 @@ II subclass: #IIIII
 IIIII class
 	instanceVariableNames: ''!
 
-!IIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
+!IIIII class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := IIII.
-	next := IIIIII.
-	cuantasRestasVamos := nil.! !
+	next := IIIIII.! !
 
 
 !classDefinition: #IIIIII category: 'Numbers'!
@@ -189,13 +209,12 @@ II subclass: #IIIIII
 IIIIII class
 	instanceVariableNames: ''!
 
-!IIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
+!IIIIII class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := IIIII.
-	next := IIIIIII.
-	cuantasRestasVamos := I.! !
+	next := IIIIIII.! !
 
 
 !classDefinition: #IIIIIII category: 'Numbers'!
@@ -211,13 +230,12 @@ II subclass: #IIIIIII
 IIIIIII class
 	instanceVariableNames: ''!
 
-!IIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
+!IIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := IIIIII.
-	next := IIIIIIII.
-	cuantasRestasVamos := nil.! !
+	next := IIIIIIII.! !
 
 
 !classDefinition: #IIIIIIII category: 'Numbers'!
@@ -233,13 +251,12 @@ II subclass: #IIIIIIII
 IIIIIIII class
 	instanceVariableNames: ''!
 
-!IIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
+!IIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := IIIIIII.
-	next := IIIIIIIII.
-	cuantasRestasVamos := nil.! !
+	next := IIIIIIIII.! !
 
 
 !classDefinition: #IIIIIIIII category: 'Numbers'!
@@ -255,13 +272,12 @@ II subclass: #IIIIIIIII
 IIIIIIIII class
 	instanceVariableNames: ''!
 
-!IIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+!IIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := IIIIIIII.
-	next := IIIIIIIIII.
-	cuantasRestasVamos := nil.! !
+	next := IIIIIIIIII.! !
 
 
 !classDefinition: #IIIIIIIIII category: 'Numbers'!
@@ -277,13 +293,12 @@ II subclass: #IIIIIIIIII
 IIIIIIIIII class
 	instanceVariableNames: ''!
 
-!IIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+!IIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := IIIIIIIII.
-	next := IIIIIIIIIII.
-	cuantasRestasVamos := nil.! !
+	next := IIIIIIIIIII.! !
 
 
 !classDefinition: #IIIIIIIIIII category: 'Numbers'!
@@ -299,13 +314,12 @@ II subclass: #IIIIIIIIIII
 IIIIIIIIIII class
 	instanceVariableNames: ''!
 
-!IIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+!IIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := IIIIIIIIII.
-	next := IIIIIIIIIIII.
-	cuantasRestasVamos := nil.! !
+	next := IIIIIIIIIIII.! !
 
 
 !classDefinition: #IIIIIIIIIIII category: 'Numbers'!
@@ -321,13 +335,12 @@ II subclass: #IIIIIIIIIIII
 IIIIIIIIIIII class
 	instanceVariableNames: ''!
 
-!IIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+!IIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := IIIIIIIIIII.
-	next := IIIIIIIIIIIII.
-	cuantasRestasVamos := nil.! !
+	next := IIIIIIIIIIIII.! !
 
 
 !classDefinition: #IIIIIIIIIIIII category: 'Numbers'!
@@ -343,13 +356,12 @@ II subclass: #IIIIIIIIIIIII
 IIIIIIIIIIIII class
 	instanceVariableNames: ''!
 
-!IIIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+!IIIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := IIIIIIIIIIII.
-	next := IIIIIIIIIIIIII.
-	cuantasRestasVamos := nil.! !
+	next := IIIIIIIIIIIIII.! !
 
 
 !classDefinition: #IIIIIIIIIIIIII category: 'Numbers'!
@@ -365,13 +377,12 @@ II subclass: #IIIIIIIIIIIIII
 IIIIIIIIIIIIII class
 	instanceVariableNames: ''!
 
-!IIIIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+!IIIIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := IIIIIIIIIIIII.
-	next := IIIIIIIIIIIIIII.
-	cuantasRestasVamos := nil.! !
+	next := IIIIIIIIIIIIIII.! !
 
 
 !classDefinition: #IIIIIIIIIIIIIII category: 'Numbers'!
@@ -387,13 +398,12 @@ II subclass: #IIIIIIIIIIIIIII
 IIIIIIIIIIIIIII class
 	instanceVariableNames: ''!
 
-!IIIIIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+!IIIIIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := IIIIIIIIIIIIII.
-	next := IIIIIIIIIIIIIIII.
-	cuantasRestasVamos := nil.! !
+	next := IIIIIIIIIIIIIIII.! !
 
 
 !classDefinition: #IIIIIIIIIIIIIIII category: 'Numbers'!
@@ -409,13 +419,12 @@ II subclass: #IIIIIIIIIIIIIIII
 IIIIIIIIIIIIIIII class
 	instanceVariableNames: ''!
 
-!IIIIIIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+!IIIIIIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/31/2023 18:20:25'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	previous := IIIIIIIIIIIIIII.
-	next := nil.
-	cuantasRestasVamos := nil.! !
+	next := nil.! !
 
 I initializeAfterFileIn!
 II initializeAfterFileIn!
