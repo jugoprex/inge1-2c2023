@@ -11,9 +11,17 @@ DenotativeObject subclass: #I
 I class
 	instanceVariableNames: 'next'!
 
+!I class methodsFor: 'as yet unclassified' stamp: 'FS 8/30/2023 19:43:13'!
+* unNumero
+	^unNumero.! !
+
 !I class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:47:16'!
 + unNumero
 	^unNumero next! !
+
+!I class methodsFor: 'as yet unclassified' stamp: 'FS 8/30/2023 19:29:58'!
+mayor: unNumero
+	^false! !
 
 !I class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:49:22'!
 next
@@ -26,12 +34,8 @@ next
 restateA: unNumero
 	^unNumero previous! !
 
-!I class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:50:12'!
-x: unNumero
-	^unNumero.! !
 
-
-!I class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/27/2023 18:01:05'!
+!I class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
@@ -49,7 +53,11 @@ DenotativeObject subclass: #II
 
 !classDefinition: 'II class' category: 'Numbers'!
 II class
-	instanceVariableNames: 'next previous'!
+	instanceVariableNames: 'previous next cuantasRestasVamos'!
+
+!II class methodsFor: 'as yet unclassified' stamp: 'FS 8/30/2023 19:43:45'!
+* unNumero
+	^(self previous * unNumero) + unNumero! !
 
 !II class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:52:10'!
 +unNumero
@@ -59,10 +67,24 @@ II class
 - unNumero
 	^unNumero  restateA: self! !
 
-!II class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:53:28'!
+!II class methodsFor: 'as yet unclassified' stamp: 'FS 8/30/2023 19:36:00'!
+/ unNumero
+	(unNumero mayor: self - unNumero)
+	ifTrue: [^I].
+	^((self - unNumero) / (unNumero)) next! !
+
+!II class methodsFor: 'as yet unclassified' stamp: 'FS 8/30/2023 19:29:07'!
+mayor: unNumero
+	unNumero = I
+	ifTrue: [
+		self = I ifFalse: [^true]	. ^false
+	].
+	^(self - I mayor: unNumero - I)! !
+
+!II class methodsFor: 'as yet unclassified' stamp: 'FS 8/29/2023 20:32:33'!
 next
 	next ifNotNil:[^next].
-	next := self cloneNamed:self name, 'I'.
+	next := II createChildNamed: self name, 'I'.
 	next previous: self.
 	^next! !
 
@@ -78,21 +100,18 @@ previous: Numero
 restateA: unNumero
 	^unNumero previous - self previous! !
 
-!II class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:55:14'!
-x: unNumero
-	^(self previous x: unNumero) + unNumero! !
 
-
-!II class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/27/2023 18:01:05'!
+!II class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
+	previous := I.
 	next := III.
-	previous := I.! !
+	cuantasRestasVamos := I.! !
 
 
 !classDefinition: #III category: 'Numbers'!
-DenotativeObject subclass: #III
+II subclass: #III
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -102,50 +121,19 @@ DenotativeObject subclass: #III
 
 !classDefinition: 'III class' category: 'Numbers'!
 III class
-	instanceVariableNames: 'next previous'!
+	instanceVariableNames: ''!
 
-!III class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:57:55'!
-+unNumero
-	^(self previous + unNumero next)! !
-
-!III class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:57:55'!
-- unNumero
-	^unNumero  restateA: self! !
-
-!III class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:57:55'!
-next
-	next ifNotNil:[^next].
-	next := self cloneNamed:self name, 'I'.
-	next previous: self.
-	^next! !
-
-!III class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:57:55'!
-previous
-	^previous! !
-
-!III class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:57:55'!
-previous: Numero
-	previous := Numero! !
-
-!III class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:57:55'!
-restateA: unNumero
-	^unNumero previous - self previous! !
-
-!III class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:57:55'!
-x: unNumero
-	^(self previous x: unNumero) + unNumero! !
-
-
-!III class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/27/2023 18:01:05'!
+!III class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
+	previous := II.
 	next := IIII.
-	previous := II.! !
+	cuantasRestasVamos := nil.! !
 
 
 !classDefinition: #IIII category: 'Numbers'!
-DenotativeObject subclass: #IIII
+II subclass: #IIII
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -155,48 +143,293 @@ DenotativeObject subclass: #IIII
 
 !classDefinition: 'IIII class' category: 'Numbers'!
 IIII class
-	instanceVariableNames: 'next previous'!
+	instanceVariableNames: ''!
 
-!IIII class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:58:06'!
-+unNumero
-	^(self previous + unNumero next)! !
-
-!IIII class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:58:06'!
-- unNumero
-	^unNumero  restateA: self! !
-
-!IIII class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:58:06'!
-next
-	next ifNotNil:[^next].
-	next := self cloneNamed:self name, 'I'.
-	next previous: self.
-	^next! !
-
-!IIII class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:58:06'!
-previous
-	^previous! !
-
-!IIII class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:58:06'!
-previous: Numero
-	previous := Numero! !
-
-!IIII class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:58:06'!
-restateA: unNumero
-	^unNumero previous - self previous! !
-
-!IIII class methodsFor: 'as yet unclassified' stamp: 'JG 8/27/2023 17:58:06'!
-x: unNumero
-	^(self previous x: unNumero) + unNumero! !
-
-
-!IIII class methodsFor: '--** private fileout/in **--' stamp: 'JG 8/27/2023 18:01:05'!
+!IIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
+	previous := III.
+	next := IIIII.
+	cuantasRestasVamos := I.! !
+
+
+!classDefinition: #IIIII category: 'Numbers'!
+II subclass: #IIIII
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numbers'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'IIIII class' category: 'Numbers'!
+IIIII class
+	instanceVariableNames: ''!
+
+!IIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
+initializeCollaboratorsFromFile
+	"Auto generated method for loading purposes - Do not modify it"
+
+	previous := IIII.
+	next := IIIIII.
+	cuantasRestasVamos := nil.! !
+
+
+!classDefinition: #IIIIII category: 'Numbers'!
+II subclass: #IIIIII
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numbers'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'IIIIII class' category: 'Numbers'!
+IIIIII class
+	instanceVariableNames: ''!
+
+!IIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
+initializeCollaboratorsFromFile
+	"Auto generated method for loading purposes - Do not modify it"
+
+	previous := IIIII.
+	next := IIIIIII.
+	cuantasRestasVamos := I.! !
+
+
+!classDefinition: #IIIIIII category: 'Numbers'!
+II subclass: #IIIIIII
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numbers'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'IIIIIII class' category: 'Numbers'!
+IIIIIII class
+	instanceVariableNames: ''!
+
+!IIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
+initializeCollaboratorsFromFile
+	"Auto generated method for loading purposes - Do not modify it"
+
+	previous := IIIIII.
+	next := IIIIIIII.
+	cuantasRestasVamos := nil.! !
+
+
+!classDefinition: #IIIIIIII category: 'Numbers'!
+II subclass: #IIIIIIII
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numbers'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'IIIIIIII class' category: 'Numbers'!
+IIIIIIII class
+	instanceVariableNames: ''!
+
+!IIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:23'!
+initializeCollaboratorsFromFile
+	"Auto generated method for loading purposes - Do not modify it"
+
+	previous := IIIIIII.
+	next := IIIIIIIII.
+	cuantasRestasVamos := nil.! !
+
+
+!classDefinition: #IIIIIIIII category: 'Numbers'!
+II subclass: #IIIIIIIII
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numbers'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'IIIIIIIII class' category: 'Numbers'!
+IIIIIIIII class
+	instanceVariableNames: ''!
+
+!IIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+initializeCollaboratorsFromFile
+	"Auto generated method for loading purposes - Do not modify it"
+
+	previous := IIIIIIII.
+	next := IIIIIIIIII.
+	cuantasRestasVamos := nil.! !
+
+
+!classDefinition: #IIIIIIIIII category: 'Numbers'!
+II subclass: #IIIIIIIIII
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numbers'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'IIIIIIIIII class' category: 'Numbers'!
+IIIIIIIIII class
+	instanceVariableNames: ''!
+
+!IIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+initializeCollaboratorsFromFile
+	"Auto generated method for loading purposes - Do not modify it"
+
+	previous := IIIIIIIII.
+	next := IIIIIIIIIII.
+	cuantasRestasVamos := nil.! !
+
+
+!classDefinition: #IIIIIIIIIII category: 'Numbers'!
+II subclass: #IIIIIIIIIII
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numbers'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'IIIIIIIIIII class' category: 'Numbers'!
+IIIIIIIIIII class
+	instanceVariableNames: ''!
+
+!IIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+initializeCollaboratorsFromFile
+	"Auto generated method for loading purposes - Do not modify it"
+
+	previous := IIIIIIIIII.
+	next := IIIIIIIIIIII.
+	cuantasRestasVamos := nil.! !
+
+
+!classDefinition: #IIIIIIIIIIII category: 'Numbers'!
+II subclass: #IIIIIIIIIIII
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numbers'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'IIIIIIIIIIII class' category: 'Numbers'!
+IIIIIIIIIIII class
+	instanceVariableNames: ''!
+
+!IIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+initializeCollaboratorsFromFile
+	"Auto generated method for loading purposes - Do not modify it"
+
+	previous := IIIIIIIIIII.
+	next := IIIIIIIIIIIII.
+	cuantasRestasVamos := nil.! !
+
+
+!classDefinition: #IIIIIIIIIIIII category: 'Numbers'!
+II subclass: #IIIIIIIIIIIII
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numbers'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'IIIIIIIIIIIII class' category: 'Numbers'!
+IIIIIIIIIIIII class
+	instanceVariableNames: ''!
+
+!IIIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+initializeCollaboratorsFromFile
+	"Auto generated method for loading purposes - Do not modify it"
+
+	previous := IIIIIIIIIIII.
+	next := IIIIIIIIIIIIII.
+	cuantasRestasVamos := nil.! !
+
+
+!classDefinition: #IIIIIIIIIIIIII category: 'Numbers'!
+II subclass: #IIIIIIIIIIIIII
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numbers'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'IIIIIIIIIIIIII class' category: 'Numbers'!
+IIIIIIIIIIIIII class
+	instanceVariableNames: ''!
+
+!IIIIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+initializeCollaboratorsFromFile
+	"Auto generated method for loading purposes - Do not modify it"
+
+	previous := IIIIIIIIIIIII.
+	next := IIIIIIIIIIIIIII.
+	cuantasRestasVamos := nil.! !
+
+
+!classDefinition: #IIIIIIIIIIIIIII category: 'Numbers'!
+II subclass: #IIIIIIIIIIIIIII
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numbers'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'IIIIIIIIIIIIIII class' category: 'Numbers'!
+IIIIIIIIIIIIIII class
+	instanceVariableNames: ''!
+
+!IIIIIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+initializeCollaboratorsFromFile
+	"Auto generated method for loading purposes - Do not modify it"
+
+	previous := IIIIIIIIIIIIII.
+	next := IIIIIIIIIIIIIIII.
+	cuantasRestasVamos := nil.! !
+
+
+!classDefinition: #IIIIIIIIIIIIIIII category: 'Numbers'!
+II subclass: #IIIIIIIIIIIIIIII
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numbers'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'IIIIIIIIIIIIIIII class' category: 'Numbers'!
+IIIIIIIIIIIIIIII class
+	instanceVariableNames: ''!
+
+!IIIIIIIIIIIIIIII class methodsFor: '--** private fileout/in **--' stamp: 'FS 8/30/2023 19:46:24'!
+initializeCollaboratorsFromFile
+	"Auto generated method for loading purposes - Do not modify it"
+
+	previous := IIIIIIIIIIIIIII.
 	next := nil.
-	previous := III.! !
+	cuantasRestasVamos := nil.! !
 
 I initializeAfterFileIn!
 II initializeAfterFileIn!
 III initializeAfterFileIn!
 IIII initializeAfterFileIn!
+IIIII initializeAfterFileIn!
+IIIIII initializeAfterFileIn!
+IIIIIII initializeAfterFileIn!
+IIIIIIII initializeAfterFileIn!
+IIIIIIIII initializeAfterFileIn!
+IIIIIIIIII initializeAfterFileIn!
+IIIIIIIIIII initializeAfterFileIn!
+IIIIIIIIIIII initializeAfterFileIn!
+IIIIIIIIIIIII initializeAfterFileIn!
+IIIIIIIIIIIIII initializeAfterFileIn!
+IIIIIIIIIIIIIII initializeAfterFileIn!
+IIIIIIIIIIIIIIII initializeAfterFileIn!
