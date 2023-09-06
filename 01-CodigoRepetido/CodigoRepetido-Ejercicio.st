@@ -21,36 +21,45 @@ TestCase subclass: #CustomerBookTest
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'NR 4/3/2019 10:50:19'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'AGRM 9/4/2023 21:56:23'!
+measureTimeOf: bloque
+	  
+	| millisecondsAfterRunning millisecondsBeforeRunning|
+	
+	millisecondsBeforeRunning := Time millisecondClockValue * millisecond.
+	bloque value.
+	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
+	^millisecondsAfterRunning - millisecondsBeforeRunning ! !
+
+!CustomerBookTest methodsFor: 'testing' stamp: 'AGRM 9/4/2023 21:57:42'!
 test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
 
-	| customerBook millisecondsBeforeRunning millisecondsAfterRunning |
+	| customerBook blockToMeasure time |
 	
 	customerBook := CustomerBook new.
 	
-	millisecondsBeforeRunning := Time millisecondClockValue * millisecond.
-	customerBook addCustomerNamed: 'John Lennon'.
-	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
+	blockToMeasure := [customerBook addCustomerNamed: 'John Lennon'].
 	
-	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < (50 * millisecond)
+	time := self measureTimeOf: blockToMeasure.
+	self assert: time < (50 * millisecond).
 	
 ! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'NR 4/3/2019 10:50:13'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'AGRM 9/4/2023 22:02:14'!
 test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 
-	| customerBook millisecondsBeforeRunning millisecondsAfterRunning paulMcCartney |
+	| customerBook paulMcCartney blockToMeasure time |
 	
 	customerBook := CustomerBook new.
 	paulMcCartney := 'Paul McCartney'.
 	
 	customerBook addCustomerNamed: paulMcCartney.
-	  
-	millisecondsBeforeRunning := Time millisecondClockValue * millisecond.
-	customerBook removeCustomerNamed: paulMcCartney.
-	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
 	
-	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < (100 * millisecond)
+	blockToMeasure := [customerBook removeCustomerNamed: paulMcCartney ].
+	
+	time := self measureTimeOf: blockToMeasure.
+	
+	self assert: time < (100 * millisecond)
 	
 ! !
 
@@ -160,6 +169,16 @@ test08CanNotSuspendAnAlreadySuspendedCustomer
 			self assert: customerBook numberOfCustomers = 1.
 			self assert: (customerBook includesCustomerNamed: johnLennon) ]
 ! !
+
+!CustomerBookTest methodsFor: 'testing' stamp: 'AGRM 9/4/2023 21:49:04'!
+xxxxx: bloque
+	  
+	| millisecondsAfterRunning millisecondsBeforeRunning|
+	
+	millisecondsBeforeRunning := Time millisecondClockValue * millisecond.
+	bloque.
+	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
+	^millisecondsAfterRunning - millisecondsBeforeRunning ! !
 
 
 !classDefinition: #CustomerBook category: 'CodigoRepetido-Ejercicio'!
