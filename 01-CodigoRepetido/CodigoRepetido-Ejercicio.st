@@ -21,7 +21,17 @@ TestCase subclass: #CustomerBookTest
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'AGRM 9/4/2023 21:56:23'!
+!CustomerBookTest methodsFor: 'testing-utils' stamp: 'JG 9/7/2023 12:34:57'!
+initializeBookWithSingleCustomer: customer
+	^(CustomerBook new addCustomerNamed: customer)
+! !
+
+!CustomerBookTest methodsFor: 'testing-utils' stamp: 'JG 9/7/2023 12:36:09'!
+initializeBookWithSingleCustomerThenSuspendThem: customer
+	^((CustomerBook new addCustomerNamed: customer) suspendCustomerNamed: customer)
+ ! !
+
+!CustomerBookTest methodsFor: 'testing-utils' stamp: 'AGRM 9/4/2023 21:56:23'!
 measureTimeOf: bloque
 	  
 	| millisecondsAfterRunning millisecondsBeforeRunning|
@@ -30,6 +40,7 @@ measureTimeOf: bloque
 	bloque value.
 	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
 	^millisecondsAfterRunning - millisecondsBeforeRunning ! !
+
 
 !CustomerBookTest methodsFor: 'testing' stamp: 'AGRM 9/4/2023 21:57:42'!
 test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
@@ -77,15 +88,13 @@ test03CanNotAddACustomerWithEmptyName
 			self assert: anError messageText = CustomerBook customerCanNotBeEmptyErrorMessage.
 			self assert: customerBook isEmpty ]! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'HAW 8/28/2017 08:57:25'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'JG 9/7/2023 12:32:20'!
 test04CanNotRemoveAnInvalidCustomer
 	
 	| customerBook johnLennon |
-			
-	customerBook := CustomerBook new.
-	johnLennon := 'John Lennon'.
-	customerBook addCustomerNamed: johnLennon.
 	
+	johnLennon := 'John Lennon'.
+	customerBook := self initializeBookWithSingleCustomer: johnLennon.
 	[ customerBook removeCustomerNamed: 'Paul McCartney'.
 	self fail ]
 		on: NotFound 
@@ -94,16 +103,13 @@ test04CanNotRemoveAnInvalidCustomer
 			self assert: (customerBook includesCustomerNamed: johnLennon) ]
 ! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'NR 4/3/2019 10:50:25'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'JG 9/7/2023 12:37:05'!
 test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
 
 	| customerBook paulMcCartney|
 	
-	customerBook := CustomerBook new.
 	paulMcCartney := 'Paul McCartney'.
-	
-	customerBook addCustomerNamed: paulMcCartney.
-	customerBook suspendCustomerNamed: paulMcCartney.
+	customerBook := self initializeBookWithSingleCustomerThenSuspendThem: paulMcCartney.
 	
 	self assert: 0 equals: customerBook numberOfActiveCustomers.
 	self assert: 1 equals: customerBook numberOfSuspendedCustomers.
@@ -114,16 +120,13 @@ test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
 	
 ! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'NR 4/3/2019 10:50:28'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'JG 9/7/2023 12:36:52'!
 test06RemovingASuspendedCustomerShouldRemoveItFromCustomerBook
 
 	| customerBook paulMcCartney|
 	
-	customerBook := CustomerBook new.
 	paulMcCartney := 'Paul McCartney'.
-	
-	customerBook addCustomerNamed: paulMcCartney.
-	customerBook suspendCustomerNamed: paulMcCartney.
+	customerBook := self initializeBookWithSingleCustomerThenSuspendThem: paulMcCartney.
 	customerBook removeCustomerNamed: paulMcCartney.
 	
 	self assert: 0 equals: customerBook numberOfActiveCustomers.
@@ -135,14 +138,13 @@ test06RemovingASuspendedCustomerShouldRemoveItFromCustomerBook
 	
 ! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'NR 9/17/2020 06:03:47'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'JG 9/7/2023 12:33:46'!
 test07CanNotSuspendAnInvalidCustomer
 	
 	| customerBook johnLennon |
-			
-	customerBook := CustomerBook new.
+	
 	johnLennon := 'John Lennon'.
-	customerBook addCustomerNamed: johnLennon.
+	customerBook := self initializeBookWithSingleCustomer: johnLennon.
 	
 	[ customerBook suspendCustomerNamed: 'George Harrison'.
 	self fail ]
@@ -152,15 +154,13 @@ test07CanNotSuspendAnInvalidCustomer
 			self assert: (customerBook includesCustomerNamed: johnLennon) ]
 ! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'NR 9/19/2018 17:57:11'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'JG 9/7/2023 12:37:52'!
 test08CanNotSuspendAnAlreadySuspendedCustomer
 	
 	| customerBook johnLennon |
 			
-	customerBook := CustomerBook new.
 	johnLennon := 'John Lennon'.
-	customerBook addCustomerNamed: johnLennon.
-	customerBook suspendCustomerNamed: johnLennon.
+	customerBook := self initializeBookWithSingleCustomerThenSuspendThem: johnLennon.
 	
 	[ customerBook suspendCustomerNamed: johnLennon.
 	self fail ]
@@ -169,16 +169,6 @@ test08CanNotSuspendAnAlreadySuspendedCustomer
 			self assert: customerBook numberOfCustomers = 1.
 			self assert: (customerBook includesCustomerNamed: johnLennon) ]
 ! !
-
-!CustomerBookTest methodsFor: 'testing' stamp: 'AGRM 9/4/2023 21:49:04'!
-xxxxx: bloque
-	  
-	| millisecondsAfterRunning millisecondsBeforeRunning|
-	
-	millisecondsBeforeRunning := Time millisecondClockValue * millisecond.
-	bloque.
-	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
-	^millisecondsAfterRunning - millisecondsBeforeRunning ! !
 
 
 !classDefinition: #CustomerBook category: 'CodigoRepetido-Ejercicio'!
