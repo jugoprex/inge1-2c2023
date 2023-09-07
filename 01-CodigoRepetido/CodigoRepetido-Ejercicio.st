@@ -206,13 +206,21 @@ initialize
 	suspended:= OrderedCollection new.! !
 
 
-!CustomerBook methodsFor: 'customer management' stamp: 'NR 4/3/2019 10:14:26'!
+!CustomerBook methodsFor: 'customer management' stamp: 'FS 9/6/2023 21:13:26'!
 addCustomerNamed: aName
 
 	aName isEmpty ifTrue: [ self signalCustomerNameCannotBeEmpty ].
-	((active includes: aName) or: [suspended includes: aName]) ifTrue: [ self signalCustomerAlreadyExists ].
+	(self includesCustomerNamed: aName) ifTrue: [ self signalCustomerAlreadyExists ].
 	
 	active add: aName ! !
+
+!CustomerBook methodsFor: 'customer management' stamp: 'FS 9/6/2023 22:42:04'!
+findCustomerNamed: aName inCollection: donde andDo: hacer
+	1 to: donde size do: 
+	[ :index |
+		aName = (donde at: index)
+			ifTrue: [^hacer value: index]
+	].! !
 
 !CustomerBook methodsFor: 'customer management' stamp: 'NR 4/3/2019 10:14:26'!
 numberOfActiveCustomers
@@ -229,28 +237,18 @@ numberOfSuspendedCustomers
 	
 	^suspended size! !
 
-!CustomerBook methodsFor: 'customer management' stamp: 'NR 4/3/2019 10:14:26'!
+!CustomerBook methodsFor: 'customer management' stamp: 'FS 9/6/2023 22:40:05'!
 removeCustomerNamed: aName 
- 
-	1 to: active size do: 
-	[ :index |
-		aName = (active at: index)
-			ifTrue: [
-				active removeAt: index.
-				^ aName 
-			] 
-	].
-
-	1 to: suspended size do: 	
-	[ :index |
-		aName = (suspended at: index)
-			ifTrue: [
-				suspended removeAt: index.
-				^ aName 
-			] 
-	].
-	
+	(active includes: aName) ifTrue: [^self removeCustomerNamed: aName from: active].
+	(suspended includes: aName) ifTrue: [^self removeCustomerNamed: aName from: suspended].
 	^ NotFound signal.
+! !
+
+!CustomerBook methodsFor: 'customer management' stamp: 'FS 9/6/2023 22:44:20'!
+removeCustomerNamed: aName from: customerCollection
+	customerCollection remove: aName.
+	"self findCustomerNamed: aName inCollection: customerCollection andDo: [ :index | customerCollection removeAt: index.]."
+	^aName.
 ! !
 
 !CustomerBook methodsFor: 'customer management' stamp: 'HernanWilkinson 7/6/2011 17:52'!
