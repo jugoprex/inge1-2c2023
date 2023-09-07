@@ -204,14 +204,6 @@ addCustomerNamed: aName
 	
 	active add: aName ! !
 
-!CustomerBook methodsFor: 'customer management' stamp: 'FS 9/6/2023 22:42:04'!
-findCustomerNamed: aName inCollection: donde andDo: hacer
-	1 to: donde size do: 
-	[ :index |
-		aName = (donde at: index)
-			ifTrue: [^hacer value: index]
-	].! !
-
 !CustomerBook methodsFor: 'customer management' stamp: 'NR 4/3/2019 10:14:26'!
 numberOfActiveCustomers
 	
@@ -227,18 +219,13 @@ numberOfSuspendedCustomers
 	
 	^suspended size! !
 
-!CustomerBook methodsFor: 'customer management' stamp: 'FS 9/6/2023 22:40:05'!
+!CustomerBook methodsFor: 'customer management' stamp: 'JG 9/7/2023 15:48:13'!
 removeCustomerNamed: aName 
-	(active includes: aName) ifTrue: [^self removeCustomerNamed: aName from: active].
-	(suspended includes: aName) ifTrue: [^self removeCustomerNamed: aName from: suspended].
-	^ NotFound signal.
-! !
+	active remove: aName ifAbsent: [
+		suspended remove: aName ifAbsent: 
+		[^NotFound signal]] 
 
-!CustomerBook methodsFor: 'customer management' stamp: 'FS 9/6/2023 22:44:20'!
-removeCustomerNamed: aName from: customerCollection
-	customerCollection remove: aName.
-	"self findCustomerNamed: aName inCollection: customerCollection andDo: [ :index | customerCollection removeAt: index.]."
-	^aName.
+
 ! !
 
 !CustomerBook methodsFor: 'customer management' stamp: 'HernanWilkinson 7/6/2011 17:52'!
