@@ -440,7 +440,7 @@ isZero
 	self subclassResponsibility ! !
 
 
-!Numero methodsFor: 'initialization' stamp: 'Añex 9/9/2023 19:07:21'!
+!Numero methodsFor: 'initialization' stamp: 'FS 9/13/2023 12:44:24'!
 initializeWith: aValue
 	^Entero with: aValue.
 ! !
@@ -539,15 +539,9 @@ Numero subclass: #Entero
 	poolDictionaries: ''
 	category: 'Numero-Exercise'!
 
-!Entero methodsFor: 'as yet unclassified' stamp: 'Añex 9/9/2023 18:58:11'!
-initializeWith: aValue
-	value := aValue! !
-
-
-!Entero methodsFor: 'arithmetic operations' stamp: 'JG 9/11/2023 21:24:57'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 11:40:49'!
 * aMultiplier 
-	(aMultiplier isKindOf: Fraccion ) ifTrue: [^(self value * aMultiplier numerator) / (aMultiplier denominator)].
-	(aMultiplier  isKindOf: self class) ifTrue: [^self class with: value * aMultiplier integerValue].
+	^aMultiplier multiplicarEntero: self.
 	! !
 
 !Entero methodsFor: 'arithmetic operations' stamp: 'JG 9/12/2023 18:51:00'!
@@ -561,17 +555,23 @@ initializeWith: aValue
 	^aSubtrahend restaEntera: self
 	! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'JG 9/11/2023 21:25:28'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 11:54:28'!
 / aDivisor 
-	(aDivisor isKindOf: Fraccion ) ifTrue: [^(self value * aDivisor denominator) / aDivisor numerator].
-	(aDivisor isKindOf: self class) ifTrue: [^Fraccion with: self over: aDivisor]! !
+	^aDivisor dividirEntero: self.! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 21:55'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 12:07:14'!
 // aDivisor 
-	
 	^self class with: value // aDivisor integerValue! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'HAW 9/24/2018 08:47:50'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 12:05:00'!
+dividirEntero: elDividendo
+	^Fraccion with: elDividendo over: self.! !
+
+!Entero methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 12:07:06'!
+dividirFraccion: aDivisor 
+	^aDivisor * ((Entero with: 1) / self).! !
+
+!Entero methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 12:45:12'!
 fibonacci
 
 	| one two |
@@ -579,7 +579,6 @@ fibonacci
 	one := Entero with: 1.
 	two := Entero with: 2.
 	
-	self isNegative ifTrue: [self error: Entero negativeFibonacciErrorDescription ].	
 	(self isZero or: [self isOne]) ifTrue: [^one].
 	
 	^ (self - one) fibonacci + (self - two) fibonacci
@@ -589,6 +588,16 @@ fibonacci
 greatestCommonDivisorWith: anEntero 
 	
 	^self class with: (value gcd: anEntero integerValue)! !
+
+!Entero methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 11:50:42'!
+multiplicarEntero: unEntero
+	^self class with: self integerValue * unEntero integerValue.
+	! !
+
+!Entero methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 11:39:20'!
+multiplicarFraccion: unaFraccion
+	^(self value * unaFraccion numerator) / (unaFraccion denominator).
+	! !
 
 !Entero methodsFor: 'arithmetic operations' stamp: 'JG 9/12/2023 19:11:06'!
 restaEntera: unEntero
@@ -623,10 +632,9 @@ hash
 	^value hash! !
 
 
-!Entero methodsFor: 'initialization' stamp: 'HernanWilkinson 5/7/2016 20:09'!
-initalizeWith: aValue 
-	
-	value := aValue! !
+!Entero methodsFor: 'initialization' stamp: 'FS 9/13/2023 12:32:04'!
+initializeWith: aValue
+	value := aValue.! !
 
 
 !Entero methodsFor: 'value' stamp: 'HernanWilkinson 5/7/2016 21:02'!
@@ -668,13 +676,27 @@ Entero class
 negativeFibonacciErrorDescription
 	^ ' Fibonacci no está definido aquí para Enteros Negativos!!!!!!'! !
 
-!Entero class methodsFor: 'instance creation' stamp: 'HernanWilkinson 5/7/2016 22:53'!
+!Entero class methodsFor: 'instance creation' stamp: 'FS 9/13/2023 12:43:52'!
 with: aValue 
 	
 	"Esta verificacion esta puesta por si se equivocan y quieren crear un Entero pasando otra cosa que un Integer - Hernan"
 	aValue isInteger ifFalse: [  self error: 'aValue debe ser anInteger' ].
-	
-	^self new initalizeWith: aValue! !
+	(aValue < 0) ifTrue: [
+	^EnteroNegativo new initializeWith: aValue.
+	].
+	^self new initializeWith: aValue! !
+
+
+!classDefinition: #EnteroNegativo category: 'Numero-Exercise'!
+Entero subclass: #EnteroNegativo
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numero-Exercise'!
+
+!EnteroNegativo methodsFor: 'as yet unclassified' stamp: 'FS 9/13/2023 12:33:50'!
+fibonacci
+	^self error: Entero negativeFibonacciErrorDescription.! !
 
 
 !classDefinition: #Fraccion category: 'Numero-Exercise'!
@@ -684,10 +706,9 @@ Numero subclass: #Fraccion
 	poolDictionaries: ''
 	category: 'Numero-Exercise'!
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'JG 9/11/2023 21:26:00'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 11:41:40'!
 * aMultiplier
-	(aMultiplier isKindOf: Entero) ifTrue:  [^aMultiplier * self].
-	(aMultiplier  isKindOf: self class) ifTrue:[^(numerator * aMultiplier numerator) / (denominator * aMultiplier denominator)]
+	^aMultiplier multiplicarFraccion: self.
 	! !
 
 !Fraccion methodsFor: 'arithmetic operations' stamp: 'JG 9/12/2023 18:50:24'!
@@ -700,14 +721,36 @@ Numero subclass: #Fraccion
 	^ aSubtrahend restaFraccion: self
 ! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'JG 9/11/2023 21:26:41'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 11:52:26'!
 / aDivisor 
-	(aDivisor isKindOf: Entero) ifTrue: [^ self * (Fraccion with: (Entero with:1) over: aDivisor value)].
-	(aDivisor  isKindOf: self class) ifTrue:[^(numerator * aDivisor denominator) / (denominator * aDivisor numerator)]! !
+	^aDivisor dividirFraccion: self.! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'JG 9/12/2023 19:12:49'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 12:01:20'!
+dividirEntero: aDivisor 
+	^ (aDivisor * denominator) / numerator.
+	"self * (Fraccion with: (Entero with:1) over: aDivisor value)."
+	"^(denominator * aDivisor numerator) / (numerator * aDivisor denominator)."
+	" A / (B/J)     => A * J / B         y aDivisor = A  self = B/J"! !
+
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 11:57:00'!
+dividirFraccion: aDivisor 
+	^(denominator * aDivisor numerator) / (numerator * aDivisor denominator).
+	
+	" (A/D) / (B/J)     => A * J / D * B         y aDivisor = A / D "! !
+
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 11:44:09'!
+multiplicarEntero: elEntero
+	^(numerator * elEntero) / (denominator).
+	! !
+
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 11:38:32'!
+multiplicarFraccion: unaFraccion
+	^(numerator * unaFraccion numerator) / (denominator * unaFraccion denominator)
+	! !
+
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'FS 9/13/2023 11:37:15'!
 restaEntera: unEntero
-	^(self numerator - (unEntero * self denominator ))/ self denominator 
+	^((unEntero * self denominator ) - self numerator) / self denominator 
 ! !
 
 !Fraccion methodsFor: 'arithmetic operations' stamp: 'JG 9/12/2023 19:13:06'!
