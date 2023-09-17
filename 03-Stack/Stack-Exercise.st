@@ -144,6 +144,29 @@ TestCase subclass: #SentenceFinderByPrefixTest
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'JG 9/17/2023 19:23:59'!
+test01EmptyStackShouldNotHaveMatches
+
+	| stack prefix elementsWithPrefix |
+	
+	stack := OOStack new.
+	prefix := 'hola'.
+	elementsWithPrefix := 	SentenceFinderByPrefix new find: prefix in: stack.
+	self assert: (elementsWithPrefix isEmpty).! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'JG 9/17/2023 19:19:53'!
+test02MatchingStringsWithSpaceAndMixedCasesPrefixes
+
+	| stack prefix elementsWithPrefix |
+	
+	stack := OOStack new.
+	prefix := 'hola'.
+	elementsWithPrefix := 	SentenceFinderByPrefix .
+	self assert: stack isEmpty.
+	stack push: 'hola calamardo'.
+	stack push: 'hola bobEsponja'.
+	stack push: 'Hola se roban la cangreburger :('.! !
+
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
 Object subclass: #OOStack
@@ -151,6 +174,10 @@ Object subclass: #OOStack
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
+
+!OOStack methodsFor: 'initialization' stamp: 'JS 9/17/2023 16:06:17'!
+initialize
+	^BaseDelStack new.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -164,9 +191,183 @@ stackEmptyErrorDescription
 	^ 'stack is empty!!!!!!'! !
 
 
+!classDefinition: #BaseDelStack category: 'Stack-Exercise'!
+OOStack subclass: #BaseDelStack
+	instanceVariableNames: 'next'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!BaseDelStack methodsFor: 'consultasEstadoDelStack' stamp: 'JS 9/17/2023 16:08:25'!
+isEmpty
+	^next isEmpty! !
+
+!BaseDelStack methodsFor: 'consultasEstadoDelStack' stamp: 'JS 9/17/2023 17:37:36'!
+size
+	^next size.! !
+
+
+!BaseDelStack methodsFor: 'initialization' stamp: 'JS 9/17/2023 16:10:22'!
+initialize
+	next := TopeDelStack new.! !
+
+
+!BaseDelStack methodsFor: 'operacionesDeElementos' stamp: 'JS 9/17/2023 16:38:45'!
+cambiarSiguiente: nuevoSiguiente
+	next := nuevoSiguiente.! !
+
+!BaseDelStack methodsFor: 'operacionesDeElementos' stamp: 'JS 9/17/2023 17:52:30'!
+devolvete
+	^OOStack error: 	OOStack stackEmptyErrorDescription ! !
+
+!BaseDelStack methodsFor: 'operacionesDeElementos' stamp: 'JS 9/17/2023 17:33:56'!
+pop
+	^next siSoyElUltimoPopeame: self.! !
+
+!BaseDelStack methodsFor: 'operacionesDeElementos' stamp: 'JS 9/17/2023 17:52:03'!
+popeate
+	^OOStack error: 	OOStack stackEmptyErrorDescription ! !
+
+!BaseDelStack methodsFor: 'operacionesDeElementos' stamp: 'JS 9/17/2023 16:28:02'!
+push: unElemento
+	next agrega: unElemento despuesDe: self.
+	
+	! !
+
+!BaseDelStack methodsFor: 'operacionesDeElementos' stamp: 'JS 9/17/2023 17:36:46'!
+top
+	^next siSoyElUltimoDevolveme: self.! !
+
+
+!classDefinition: #ElementoDelStack category: 'Stack-Exercise'!
+OOStack subclass: #ElementoDelStack
+	instanceVariableNames: 'prev next valor'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!ElementoDelStack methodsFor: 'operacionesDeElementos' stamp: 'JS 9/17/2023 16:39:52'!
+agrega: unElemento despuesDe: esteElemento
+	next agrega: unElemento despuesDe: self.! !
+
+!ElementoDelStack methodsFor: 'operacionesDeElementos' stamp: 'JS 9/17/2023 16:31:18'!
+cambiarSiguiente: elSiguienteElemento
+	next := elSiguienteElemento .! !
+
+!ElementoDelStack methodsFor: 'operacionesDeElementos' stamp: 'JS 9/17/2023 17:50:00'!
+devolvete
+	^valor.! !
+
+!ElementoDelStack methodsFor: 'operacionesDeElementos' stamp: 'JG 9/17/2023 19:35:27'!
+popeate
+	prev cambiarSiguiente: next.
+	^self devolvete.! !
+
+!ElementoDelStack methodsFor: 'operacionesDeElementos' stamp: 'JS 9/17/2023 17:34:42'!
+siSoyElUltimoPopeame: anterior.
+	^next siSoyElUltimoPopeame: self.! !
+
+
+!ElementoDelStack methodsFor: 'consultasEstadoDelStack' stamp: 'JS 9/17/2023 16:32:25'!
+isEmpty
+	^false.! !
+
+!ElementoDelStack methodsFor: 'consultasEstadoDelStack' stamp: 'JS 9/17/2023 17:36:04'!
+siSoyElUltimoDevolveme: anterior.	
+	^next siSoyElUltimoDevolveme: self.! !
+
+!ElementoDelStack methodsFor: 'consultasEstadoDelStack' stamp: 'JS 9/17/2023 17:37:55'!
+size
+	^next size + 1.! !
+
+
+!ElementoDelStack methodsFor: 'initialization' stamp: 'JS 9/17/2023 16:31:46'!
+initialize! !
+
+!ElementoDelStack methodsFor: 'initialization' stamp: 'JS 9/17/2023 16:44:10'!
+initializeContiene: Elemento antesDe: elSiguiente.
+	valor := Elemento.
+	next := elSiguiente.! !
+
+!ElementoDelStack methodsFor: 'initialization' stamp: 'JS 9/17/2023 17:25:50'!
+initializeContiene: Elemento antesDe: elSiguiente despuesDe: elAnterior.
+	valor := Elemento.
+	next := elSiguiente.
+	prev := elAnterior.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'ElementoDelStack class' category: 'Stack-Exercise'!
+ElementoDelStack class
+	instanceVariableNames: 'nuevoElemento_CHANGE_ME'!
+
+!ElementoDelStack class methodsFor: 'class initialization' stamp: 'JS 9/17/2023 16:44:56'!
+contiene: elemento antesDe: elSiguiente
+	^self new initializeContiene: elemento antesDe: elSiguiente .
+	! !
+
+!ElementoDelStack class methodsFor: 'class initialization' stamp: 'JS 9/17/2023 17:26:11'!
+contiene: elemento antesDe: elSiguiente despuesDe: elAnterior
+	^self new initializeContiene: elemento antesDe: elSiguiente despuesDe: elAnterior.
+	! !
+
+
+!classDefinition: #TopeDelStack category: 'Stack-Exercise'!
+OOStack subclass: #TopeDelStack
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!TopeDelStack methodsFor: 'consultasEstadoDelStack' stamp: 'JS 9/17/2023 16:09:44'!
+isEmpty
+	^true! !
+
+!TopeDelStack methodsFor: 'consultasEstadoDelStack' stamp: 'JS 9/17/2023 17:38:04'!
+size
+	^0.! !
+
+
+!TopeDelStack methodsFor: 'operacionesDeElementos' stamp: 'JS 9/17/2023 17:27:05'!
+agrega: nuevoElemento despuesDe: esteElemento
+	| StackContenedorDelNuevoElemento |
+	StackContenedorDelNuevoElemento  := ElementoDelStack contiene: nuevoElemento antesDe: self despuesDe: esteElemento.
+	esteElemento cambiarSiguiente: StackContenedorDelNuevoElemento.! !
+
+!TopeDelStack methodsFor: 'operacionesDeElementos' stamp: 'JS 9/17/2023 17:48:50'!
+siSoyElUltimoDevolveme: anterior.	
+	^anterior devolvete.
+	! !
+
+!TopeDelStack methodsFor: 'operacionesDeElementos' stamp: 'JS 9/17/2023 17:47:26'!
+siSoyElUltimoPopeame: elementoAnterior.
+	^elementoAnterior popeate.
+	! !
+
+
+!TopeDelStack methodsFor: 'initialization' stamp: 'JS 9/17/2023 16:08:58'!
+initialize! !
+
+
 !classDefinition: #SentenceFinderByPrefix category: 'Stack-Exercise'!
 Object subclass: #SentenceFinderByPrefix
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
+
+!SentenceFinderByPrefix methodsFor: 'ConsultasSobreStacks' stamp: 'JG 9/17/2023 19:28:50'!
+find: Prefix in: Stack
+	|element elementosConPrefijoPrefix|
+	elementosConPrefijoPrefix := OrderedCollection new.
+	[Stack size > 0] whileTrue: [
+		element := Stack pop.
+		(self esPrefijo: Prefix de: element)  ifTrue: [
+			elementosConPrefijoPrefix addFirst: element]
+		].
+	^elementosConPrefijoPrefix ! !
+
+
+!SentenceFinderByPrefix methodsFor: 'ConsultasSobreElementos' stamp: 'JG 9/17/2023 19:10:06'!
+esPrefijo: Prefix de:element
+		^(element findString: Prefix) = 1! !
