@@ -154,18 +154,67 @@ test01EmptyStackShouldNotHaveMatches
 	elementsWithPrefix := 	SentenceFinderByPrefix new find: prefix in: stack.
 	self assert: (elementsWithPrefix isEmpty).! !
 
-!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'JG 9/17/2023 19:19:53'!
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'JG 9/18/2023 11:44:19'!
 test02MatchingStringsWithSpaceAndMixedCasesPrefixes
 
-	| stack prefix elementsWithPrefix |
+	| stack prefix elementsWithPrefix expectedCollection holaCalamardo holaBobEsponja HolaCangreburger|
+	holaCalamardo := 'hola calamardo'.
+	holaBobEsponja := 'hola bobEsponja'.
+	HolaCangreburger :='Hola se roban la cangreburger :('.
+	stack := OOStack new.
+	prefix := 'hola'.
+	stack push: holaCalamardo. 
+	stack push: holaBobEsponja.
+	stack push: HolaCangreburger. 
+	expectedCollection := OrderedCollection new.
+	expectedCollection add: holaCalamardo ; add: holaBobEsponja.
+	elementsWithPrefix := 	SentenceFinderByPrefix new find: prefix in: stack.
+	self assert: expectedCollection = elementsWithPrefix .
+	
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'JG 9/18/2023 11:52:42'!
+test03StringsWithDifferentCasesShouldNotMatch
+
+	| stack prefix elementsWithPrefix expectedCollection holaCalamardo HolaCangreburger|
+	holaCalamardo := 'hola calamardo'.
+	HolaCangreburger :='Hola se roban la cangreburger :('.
 	
 	stack := OOStack new.
 	prefix := 'hola'.
-	elementsWithPrefix := 	SentenceFinderByPrefix .
-	self assert: stack isEmpty.
-	stack push: 'hola calamardo'.
-	stack push: 'hola bobEsponja'.
-	stack push: 'Hola se roban la cangreburger :('.! !
+	stack push: holaCalamardo. 
+	stack push: HolaCangreburger. 
+	expectedCollection := OrderedCollection new.
+	expectedCollection add: holaCalamardo; add: HolaCangreburger .
+	elementsWithPrefix := 	SentenceFinderByPrefix new find: prefix in: stack.
+	self assert: (expectedCollection = elementsWithPrefix) not.
+	
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'JG 9/18/2023 12:12:11'!
+test04TestDoesNotModifyStack
+
+	| stack prefix elementsWithPrefix expectedCollection holaCalamardo holaBobEsponja stackCopy element elementCopy|
+	holaCalamardo := 'hola calamardo'.
+	holaBobEsponja := 'hola bobEsponja'.
+	
+	stack := OOStack new.
+	prefix := 'hola'.
+	stack push: holaCalamardo. 
+	stack push: holaBobEsponja .
+	
+	stackCopy := OOStack new.
+	stackCopy push: holaCalamardo.
+	expectedCollection := OrderedCollection new.
+	expectedCollection add: holaCalamardo.
+	elementsWithPrefix := 	SentenceFinderByPrefix new find: prefix in: stack.
+	[stack size > 0] whileTrue: [
+		element := stack pop.
+		elementCopy := stackCopy pop.
+		self assert: element = elementCopy
+		].
+	
+	! !
 
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
@@ -356,16 +405,30 @@ Object subclass: #SentenceFinderByPrefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefix methodsFor: 'ConsultasSobreStacks' stamp: 'JG 9/17/2023 19:28:50'!
+!SentenceFinderByPrefix methodsFor: 'ConsultasSobreStacks' stamp: 'JG 9/18/2023 12:07:17'!
 find: Prefix in: Stack
-	|element elementosConPrefijoPrefix|
+	|element elementosConPrefijoPrefix reverseOrderStack|
 	elementosConPrefijoPrefix := OrderedCollection new.
+	reverseOrderStack := OOStack new.
 	[Stack size > 0] whileTrue: [
 		element := Stack pop.
 		(self esPrefijo: Prefix de: element)  ifTrue: [
-			elementosConPrefijoPrefix addFirst: element]
+			elementosConPrefijoPrefix addFirst: element].
+			reverseOrderStack push: element.
 		].
+	self reverseStack: Stack.
 	^elementosConPrefijoPrefix ! !
+
+
+!SentenceFinderByPrefix methodsFor: 'OperacionesSobreStacks' stamp: 'JG 9/18/2023 12:06:55'!
+reverseStack: Stack
+	|element reverseOrderStack|
+	reverseOrderStack := OOStack new.
+	[Stack size > 0] whileTrue: [
+	element := Stack pop.
+	reverseOrderStack push: element.
+	].
+	^reverseOrderStack ! !
 
 
 !SentenceFinderByPrefix methodsFor: 'ConsultasSobreElementos' stamp: 'JG 9/17/2023 19:10:06'!
