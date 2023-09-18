@@ -144,7 +144,6 @@ TestCase subclass: #SentenceFinderByPrefixTest
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-
 !SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'JG 9/17/2023 19:23:59'!
 test01EmptyStackShouldNotHaveMatches
 
@@ -193,10 +192,10 @@ test03StringsWithDifferentCasesShouldNotMatch
 	
 	! !
 
-!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'JG 9/18/2023 12:17:56'!
+!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'FS 9/18/2023 14:18:29'!
 test04TestDoesNotModifyStack
 
-	| stack prefix elementsWithPrefix expectedCollection holaCalamardo HolaCangreburger stackCopy element elementCopy|
+	| stack prefix elementsWithPrefix expectedCollection holaCalamardo HolaCangreburger stackCopy element elementCopy stackSize |
 	holaCalamardo := 'hola calamardo'.
 	HolaCangreburger := 'hola bobEsponja'.
 	
@@ -204,6 +203,8 @@ test04TestDoesNotModifyStack
 	prefix := 'hola'.
 	stack push: holaCalamardo. 
 	stack push: HolaCangreburger.
+	
+	stackSize := stack size.
 	
 	stackCopy := OOStack new.
 	stackCopy push: holaCalamardo.
@@ -216,6 +217,7 @@ test04TestDoesNotModifyStack
 		elementCopy := stackCopy pop.
 		self assert: element = elementCopy
 		].
+	self assert: (stackSize = (stackCopy size)).
 	
 	! !
 
@@ -401,6 +403,79 @@ siSoyElUltimoPopeame: elementoAnterior.
 initialize! !
 
 
+!classDefinition: #OracionPrefijada category: 'Stack-Exercise'!
+Object subclass: #OracionPrefijada
+	instanceVariableNames: 'oracion'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!OracionPrefijada methodsFor: 'initialization' stamp: 'FS 9/18/2023 13:56:38'!
+initializeOracion: unaOracion
+	self subclassResponsibility .! !
+
+
+!OracionPrefijada methodsFor: 'operacionesSobreColecciones' stamp: 'FS 9/18/2023 13:54:31'!
+siEstasPrefijadaAgregateA: unaColeccion.
+	self subclassResponsibility .
+	"unaColeccion addFirst: self."! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'OracionPrefijada class' category: 'Stack-Exercise'!
+OracionPrefijada class
+	instanceVariableNames: ''!
+
+!OracionPrefijada class methodsFor: 'instance creation' stamp: 'FS 9/18/2023 14:03:58'!
+oracion: oracion conPrefijo: prefijo
+	((oracion findString: prefijo) = 1) ifTrue: [ ^OracionPrefijadaValida new initializeOracion: oracion.].
+	((oracion findString: prefijo) = 1) ifFalse: [ ^OracionPrefijadaNoValida new]! !
+
+
+!classDefinition: #OracionPrefijadaNoValida category: 'Stack-Exercise'!
+OracionPrefijada subclass: #OracionPrefijadaNoValida
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!OracionPrefijadaNoValida methodsFor: 'informacionSobreLaOracion' stamp: 'FS 9/18/2023 14:09:23'!
+estaPrefijada
+	^false.! !
+
+
+!OracionPrefijadaNoValida methodsFor: 'operacionesSobreColecciones' stamp: 'FS 9/18/2023 13:57:23'!
+siEstasPrefijadaAgregateA: unaColeccion.
+	! !
+
+
+!OracionPrefijadaNoValida methodsFor: 'initialization' stamp: 'FS 9/18/2023 14:10:17'!
+initializeOracion: unaOracion
+	oracion := unaOracion.! !
+
+
+!classDefinition: #OracionPrefijadaValida category: 'Stack-Exercise'!
+OracionPrefijada subclass: #OracionPrefijadaValida
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!OracionPrefijadaValida methodsFor: 'initialization' stamp: 'FS 9/18/2023 13:56:23'!
+initializeOracion: unaOracion
+	oracion := unaOracion.! !
+
+
+!OracionPrefijadaValida methodsFor: 'operacionesSobreColecciones' stamp: 'FS 9/18/2023 14:05:06'!
+siEstasPrefijadaAgregateA: unaColeccion.
+	unaColeccion addFirst: oracion.! !
+
+
+!OracionPrefijadaValida methodsFor: 'informacionSobreLaOracion' stamp: 'FS 9/18/2023 14:09:40'!
+estaPrefijada
+	^true.! !
+
+
 !classDefinition: #SentenceFinderByPrefix category: 'Stack-Exercise'!
 Object subclass: #SentenceFinderByPrefix
 	instanceVariableNames: ''
@@ -408,16 +483,15 @@ Object subclass: #SentenceFinderByPrefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefix methodsFor: 'ConsultasSobreStacks' stamp: 'JG 9/18/2023 12:18:17'!
+!SentenceFinderByPrefix methodsFor: 'ConsultasSobreStacks' stamp: 'FS 9/18/2023 14:12:46'!
 find: Prefix in: Stack
-	|element elementosConPrefijoPrefix reverseOrderStack|
+	|element elementosConPrefijoPrefix oracionesYaAnalizadas |
 	elementosConPrefijoPrefix := OrderedCollection new.
-	reverseOrderStack := OOStack new.
+	oracionesYaAnalizadas := OOStack new.
 	[Stack isEmpty not] whileTrue: [
 		element := Stack pop.
-		(self esPrefijo: Prefix de: element)  ifTrue: [
-			elementosConPrefijoPrefix addFirst: element].
-			reverseOrderStack push: element.
+		(OracionPrefijada oracion: element conPrefijo: Prefix) siEstasPrefijadaAgregateA: elementosConPrefijoPrefix .
+		oracionesYaAnalizadas push: element.
 		].
 	self reverseStack: Stack.
 	^elementosConPrefijoPrefix ! !
