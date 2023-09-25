@@ -144,6 +144,16 @@ TestCase subclass: #SentenceFinderByPrefixTest
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
+!SentenceFinderByPrefixTest methodsFor: 'consultasSobreStack' stamp: 'JG 9/18/2023 16:09:00'!
+this: stack isEqualTo: otherStack 
+	|element elementCopy|
+	[stack isEmpty not] whileTrue: [
+	    element := stack pop.
+	    elementCopy := otherStack pop.
+	    self assert: element = elementCopy
+	    ].! !
+
+
 !SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'JG 9/17/2023 19:23:59'!
 test01EmptyStackShouldNotHaveMatches
 
@@ -192,12 +202,12 @@ test03StringsWithDifferentCasesShouldNotMatch
 	
 	! !
 
-!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'FS 9/18/2023 14:18:29'!
+!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'JG 9/18/2023 16:10:25'!
 test04TestDoesNotModifyStack
 
-	| stack prefix elementsWithPrefix expectedCollection holaCalamardo HolaCangreburger stackCopy element elementCopy stackSize |
+	| stack prefix elementsWithPrefix expectedCollection holaCalamardo HolaCangreburger stackCopy stackSize |
 	holaCalamardo := 'hola calamardo'.
-	HolaCangreburger := 'hola bobEsponja'.
+	HolaCangreburger := 'Hola se roban la cangreburger :('.
 	
 	stack := OOStack new.
 	prefix := 'hola'.
@@ -212,13 +222,27 @@ test04TestDoesNotModifyStack
 	expectedCollection := OrderedCollection new.
 	expectedCollection add: holaCalamardo.
 	elementsWithPrefix := 	SentenceFinderByPrefix new find: prefix in: stack.
-	[stack isEmpty not] whileTrue: [
-		element := stack pop.
-		elementCopy := stackCopy pop.
-		self assert: element = elementCopy
-		].
+	self this: stack isEqualTo:stackCopy.
 	self assert: (stackSize = (stackCopy size)).
 	
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'JG 9/18/2023 16:46:22'!
+test05EmptyPrefixShouldThrowError
+	| stack prefix elementsWithPrefix holaCalamardo HolaCangreburger |
+	holaCalamardo := 'hola calamardo'.
+	HolaCangreburger := 'Hola se roban la cangreburger :('.
+	
+	stack := OOStack new.
+	prefix := ''.
+	stack push: holaCalamardo. 
+	stack push: HolaCangreburger.
+	self 
+		should: [		elementsWithPrefix := 	SentenceFinderByPrefix new find: prefix in: stack.
+				(elementsWithPrefix find: '') = OrderedCollection new. ]
+		raise: Error
+		withExceptionDo: [ :anError | self assert: anError messageText equals: 
+			SentenceFinderByPrefix prefixCannotBeEmptyError ]
 	! !
 
 
@@ -483,9 +507,11 @@ Object subclass: #SentenceFinderByPrefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefix methodsFor: 'ConsultasSobreStacks' stamp: 'FS 9/18/2023 14:12:46'!
+!SentenceFinderByPrefix methodsFor: 'ConsultasSobreStacks' stamp: 'JG 9/18/2023 16:57:07'!
 find: Prefix in: Stack
 	|element elementosConPrefijoPrefix oracionesYaAnalizadas |
+	self checkNotEmpty: Prefix.
+	
 	elementosConPrefijoPrefix := OrderedCollection new.
 	oracionesYaAnalizadas := OOStack new.
 	[Stack isEmpty not] whileTrue: [
@@ -493,7 +519,7 @@ find: Prefix in: Stack
 		(OracionPrefijada oracion: element conPrefijo: Prefix) siEstasPrefijadaAgregateA: elementosConPrefijoPrefix .
 		oracionesYaAnalizadas push: element.
 		].
-	self reverseStack: Stack.
+	self reverseStack: oracionesYaAnalizadas.
 	^elementosConPrefijoPrefix ! !
 
 
@@ -508,6 +534,26 @@ reverseStack: Stack
 	^reverseOrderStack ! !
 
 
+!SentenceFinderByPrefix methodsFor: 'ConsultasSobreElementos' stamp: 'JG 9/18/2023 16:48:47'!
+checkNotEmpty: Prefix
+	^Prefix isEmpty ifTrue:[self error: self class prefixCannotBeEmptyError]
+				
+	! !
+
 !SentenceFinderByPrefix methodsFor: 'ConsultasSobreElementos' stamp: 'JG 9/17/2023 19:10:06'!
 esPrefijo: Prefix de:element
 		^(element findString: Prefix) = 1! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'SentenceFinderByPrefix class' category: 'Stack-Exercise'!
+SentenceFinderByPrefix class
+	instanceVariableNames: ''!
+
+!SentenceFinderByPrefix class methodsFor: 'error description' stamp: 'JG 9/18/2023 16:25:37'!
+prefixCannotBeEmptyError
+	^'Prefix cannot be empty!!!!'! !
+
+!SentenceFinderByPrefix class methodsFor: 'error description' stamp: 'JG 9/18/2023 16:51:28'!
+prefixCannotHaveSpacesError
+	^'Prefix cannot have spaces!!!!'! !
