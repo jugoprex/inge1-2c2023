@@ -366,6 +366,55 @@ test07AccountKnowsItsTransactions
 ! !
 
 
+!classDefinition: #ReportTest category: 'Portfolio-Solucion'!
+TestCase subclass: #ReportTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Solucion'!
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'JG 10/24/2023 20:55:49'!
+test01reportOfEmptyAccountIsEmpty
+	self assert: ((Report from: (ReceptiveAccount new)) toString) = (OrderedCollection with: 'Balance = 0.').! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'JG 10/24/2023 19:28:08'!
+test02reportOfNonEmptyAccountPrintsTransactionsCorrectly
+	|account report finalReport|
+	account := ReceptiveAccount new.
+	Deposit register: 100 on: account.
+	Withdraw register: 50 on:account.
+	report := Report from: account.
+	finalReport := OrderedCollection new.
+	finalReport addLast: 'Depósito por 100.'.
+	finalReport addLast: 'Extracción por 50.'.
+	finalReport addLast: 'Balance = 50.'.
+	
+	
+	self assert: (report toString = finalReport)! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'JG 10/24/2023 19:30:36'!
+test03reportOfNonEmptyAccountPrintsTransfersCorrectly
+	|account1 account2 report1 finalReport1 report2 finalReport2|
+	account1 := ReceptiveAccount new.
+	account2:= ReceptiveAccount new.
+	Transfer amount: 100 from:account1  to: account2.
+	report1 := Report from: account1.
+	report2 := Report from: account2.
+	finalReport1 := OrderedCollection new.
+	finalReport1 addLast: 'Salida por transferencia de 100.' .
+	finalReport1 addLast: 'Balance = -100.'.
+	finalReport2 := OrderedCollection new.
+	finalReport2 addLast: 'Entrada por transferencia de 100.' .
+	finalReport2 addLast: 'Balance = 100.'.
+	
+	self assert: (report1 toString = finalReport1 ).
+	self assert: (report2 toString = finalReport2).
+	
+	
+	
+	! !
+
+
 !classDefinition: #Account category: 'Portfolio-Solucion'!
 Object subclass: #Account
 	instanceVariableNames: ''
@@ -513,6 +562,10 @@ isComposedBy: anAccount
 
 	^ self = anAccount or: [ accounts anySatisfy: [ :composedAccount | (composedAccount isComposedBy: anAccount) or: [ anAccount isComposedBy: composedAccount ]]]! !
 
+!Portfolio methodsFor: 'testing' stamp: 'JG 10/23/2023 21:11:27'!
+report
+	"^accounts do: [:account | account report]"! !
+
 
 !Portfolio methodsFor: 'account management - private' stamp: 'HAW 5/25/2019 12:17:31'!
 addRootParentsTo: rootParents
@@ -584,6 +637,15 @@ register: aTransaction
 	transactions add: aTransaction 
 ! !
 
+!ReceptiveAccount methodsFor: 'transactions' stamp: 'JG 10/24/2023 20:54:41'!
+report
+	| cummulative | 
+	cummulative := OrderedCollection new.
+	"high risk transaction"
+	transactions do: [ :hrt | cummulative addLast: (hrt report) ].
+	cummulative addLast: ('Balance = ', (self balance) asString, '.').
+	^cummulative.! !
+
 !ReceptiveAccount methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 transactions 
 
@@ -641,6 +703,11 @@ affectBalance: aBalance
 
 	self subclassResponsibility ! !
 
+
+!AccountTransaction methodsFor: 'as yet unclassified' stamp: 'JG 10/23/2023 21:17:12'!
+printTransaction
+	self subclassResponsibility ! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'AccountTransaction class' category: 'Portfolio-Solucion'!
@@ -677,6 +744,11 @@ value
 	^ value! !
 
 
+!Deposit methodsFor: 'printing' stamp: 'JG 10/24/2023 18:53:58'!
+report
+	^'Depósito por ' , value asString, '.'.! !
+
+
 !Deposit methodsFor: 'balance' stamp: 'HAW 5/25/2019 11:25:02'!
 affectBalance: aBalance
 
@@ -710,6 +782,11 @@ initializeFor: aValue
 value
 
 	^ value! !
+
+
+!Withdraw methodsFor: 'printing' stamp: 'JG 10/24/2023 18:56:17'!
+report
+	^'Extracción por ' , value asString, '.'.! !
 
 
 !Withdraw methodsFor: 'balance' stamp: 'HAW 5/25/2019 11:25:15'!
@@ -807,6 +884,15 @@ value
 	^ value! !
 
 
+!TransferInto methodsFor: 'printing' stamp: 'JG 10/24/2023 19:22:29'!
+report
+	^'Entrada por transferencia de ' , value asString, '.'.! !
+
+!TransferInto methodsFor: 'printing' stamp: 'JG 10/23/2023 21:48:34'!
+report: Reporter
+	Reporter inboundTransaction: self.! !
+
+
 !TransferInto methodsFor: 'balance' stamp: 'JG 10/21/2023 19:38:44'!
 affectBalance: aBalance
 
@@ -852,6 +938,11 @@ value
 	^ value! !
 
 
+!TransferOut methodsFor: 'printing' stamp: 'JG 10/24/2023 19:20:14'!
+report
+	^'Salida por transferencia de ' , value asString, '.'.! !
+
+
 !TransferOut methodsFor: 'balance' stamp: 'JG 10/21/2023 19:38:59'!
 affectBalance: aBalance
 
@@ -872,6 +963,48 @@ for: aValue
 for: aValue registeredOn: transferRegister
 
 	^ self new initializeFor: aValue ! !
+
+
+!classDefinition: #Report category: 'Portfolio-Solucion'!
+Object subclass: #Report
+	instanceVariableNames: 'accountToReport'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Solucion'!
+
+!Report methodsFor: 'initialization' stamp: 'JG 10/23/2023 21:37:54'!
+initializeFrom: anAccount 
+	accountToReport := anAccount.! !
+
+
+!Report methodsFor: 'printing' stamp: 'JG 10/23/2023 21:51:19'!
+Deposit: transaction
+	^ 'Deposito por ' ,transaction value asString,'.'! !
+
+!Report methodsFor: 'printing' stamp: 'JG 10/23/2023 21:43:10'!
+Withdraw: transaction! !
+
+!Report methodsFor: 'printing' stamp: 'JG 10/23/2023 21:43:25'!
+inboundTransaction: transaction! !
+
+!Report methodsFor: 'printing' stamp: 'JG 10/23/2023 21:43:29'!
+outwardTransaction: transaction! !
+
+
+!Report methodsFor: 'inspecting' stamp: 'JG 10/24/2023 18:49:51'!
+toString
+	 ^accountToReport  report
+	"AHH okay mira le pasas al objeto el ReportGenerator y ellos te devuelven los mensajes :)"! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Report class' category: 'Portfolio-Solucion'!
+Report class
+	instanceVariableNames: ''!
+
+!Report class methodsFor: 'instance creation' stamp: 'JG 10/23/2023 21:34:20'!
+from: account 
+	^self new initializeFrom: account! !
 
 
 !classDefinition: #Transfer category: 'Portfolio-Solucion'!
