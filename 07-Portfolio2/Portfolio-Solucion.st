@@ -414,6 +414,13 @@ test03reportOfNonEmptyAccountPrintsTransfersCorrectly
 	
 	! !
 
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'JG 10/24/2023 22:32:50'!
+test04reportOfEmptyPortfolioIsEmpty
+	
+	self assert: ((Report from: (Portfolio new)) toString) = (OrderedCollection with: 'Balance = 0.').
+	
+	! !
+
 
 !classDefinition: #Account category: 'Portfolio-Solucion'!
 Object subclass: #Account
@@ -562,10 +569,6 @@ isComposedBy: anAccount
 
 	^ self = anAccount or: [ accounts anySatisfy: [ :composedAccount | (composedAccount isComposedBy: anAccount) or: [ anAccount isComposedBy: composedAccount ]]]! !
 
-!Portfolio methodsFor: 'testing' stamp: 'JG 10/23/2023 21:11:27'!
-report
-	"^accounts do: [:account | account report]"! !
-
 
 !Portfolio methodsFor: 'account management - private' stamp: 'HAW 5/25/2019 12:17:31'!
 addRootParentsTo: rootParents
@@ -584,6 +587,16 @@ assertCanAdd: accountToAdd
 signalCanNotAddAccount
 	
 	self error: self class canNotAddAccountErrorMessage! !
+
+
+!Portfolio methodsFor: 'printing' stamp: 'JG 10/24/2023 22:42:14'!
+report
+	| cummulative | 
+	cummulative := OrderedCollection new.
+	"high risk transaction"
+	accounts do: [ :acc | cummulative addLast: (acc report) ].
+	cummulative addLast: ('Balance = ', (self balance) asString, '.').
+	^cummulative.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
