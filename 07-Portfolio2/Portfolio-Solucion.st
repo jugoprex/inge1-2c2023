@@ -373,33 +373,33 @@ TestCase subclass: #ReportTest
 	poolDictionaries: ''
 	category: 'Portfolio-Solucion'!
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'JG 10/24/2023 20:55:49'!
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'FS 10/26/2023 01:14:25'!
 test01reportOfEmptyAccountIsEmpty
-	self assert: ((Report from: (ReceptiveAccount new)) toString) = (OrderedCollection with: 'Balance = 0.').! !
+	self assert: ((Report from: (ReceptiveAccount new)) value) = (OrderedCollection with: 'Balance = 0.').! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'JG 10/24/2023 19:28:08'!
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'FS 10/26/2023 01:14:36'!
 test02reportOfNonEmptyAccountPrintsTransactionsCorrectly
 	|account report finalReport|
 	account := ReceptiveAccount new.
 	Deposit register: 100 on: account.
 	Withdraw register: 50 on:account.
-	report := Report from: account.
+	report := SummaryReport from: account.
 	finalReport := OrderedCollection new.
 	finalReport addLast: 'Depósito por 100.'.
 	finalReport addLast: 'Extracción por 50.'.
 	finalReport addLast: 'Balance = 50.'.
 	
 	
-	self assert: (report toString = finalReport)! !
+	self assert: (report value = finalReport)! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'JG 10/24/2023 19:30:36'!
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'FS 10/26/2023 01:14:42'!
 test03reportOfNonEmptyAccountPrintsTransfersCorrectly
 	|account1 account2 report1 finalReport1 report2 finalReport2|
 	account1 := ReceptiveAccount new.
 	account2:= ReceptiveAccount new.
 	Transfer amount: 100 from:account1  to: account2.
-	report1 := Report from: account1.
-	report2 := Report from: account2.
+	report1 := SummaryReport from: account1.
+	report2 := SummaryReport from: account2.
 	finalReport1 := OrderedCollection new.
 	finalReport1 addLast: 'Salida por transferencia de 100.' .
 	finalReport1 addLast: 'Balance = -100.'.
@@ -407,17 +407,17 @@ test03reportOfNonEmptyAccountPrintsTransfersCorrectly
 	finalReport2 addLast: 'Entrada por transferencia de 100.' .
 	finalReport2 addLast: 'Balance = 100.'.
 	
-	self assert: (report1 toString = finalReport1 ).
-	self assert: (report2 toString = finalReport2).
+	self assert: (report1 value = finalReport1 ).
+	self assert: (report2 value = finalReport2).
 	
 	
 	
 	! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'JG 10/24/2023 22:32:50'!
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'FS 10/26/2023 01:14:45'!
 test04reportOfEmptyPortfolioIsEmpty
 	
-	self assert: ((Report from: (Portfolio new)) toString) = (OrderedCollection with: 'Balance = 0.').
+	self assert: ((Report from: (Portfolio new)) value) = (OrderedCollection with: 'Balance = 0.').
 	
 	! !
 
@@ -589,13 +589,13 @@ signalCanNotAddAccount
 	self error: self class canNotAddAccountErrorMessage! !
 
 
-!Portfolio methodsFor: 'printing' stamp: 'JG 10/24/2023 22:42:14'!
-report
+!Portfolio methodsFor: 'printing' stamp: 'FS 10/26/2023 01:35:02'!
+report: Reporter
 	| cummulative | 
 	cummulative := OrderedCollection new.
 	"high risk transaction"
-	accounts do: [ :acc | cummulative addLast: (acc report) ].
-	cummulative addLast: ('Balance = ', (self balance) asString, '.').
+	accounts do: [ :acc | cummulative addLast: (acc report: Reporter) ].
+	cummulative addLast: (Reporter NetWorth: self).
 	^cummulative.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -650,13 +650,13 @@ register: aTransaction
 	transactions add: aTransaction 
 ! !
 
-!ReceptiveAccount methodsFor: 'transactions' stamp: 'JG 10/24/2023 20:54:41'!
-report
+!ReceptiveAccount methodsFor: 'transactions' stamp: 'FS 10/26/2023 01:35:23'!
+report: Reporter
 	| cummulative | 
 	cummulative := OrderedCollection new.
 	"high risk transaction"
-	transactions do: [ :hrt | cummulative addLast: (hrt report) ].
-	cummulative addLast: ('Balance = ', (self balance) asString, '.').
+	transactions do: [ :hrt | cummulative addLast: (hrt report: Reporter ) ].
+	cummulative addLast: (Reporter NetWorth: self).
 	^cummulative.! !
 
 !ReceptiveAccount methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:37'!
@@ -757,9 +757,9 @@ value
 	^ value! !
 
 
-!Deposit methodsFor: 'printing' stamp: 'JG 10/24/2023 18:53:58'!
-report
-	^'Depósito por ' , value asString, '.'.! !
+!Deposit methodsFor: 'printing' stamp: 'FS 10/26/2023 00:58:22'!
+report: Reporter
+	^Reporter Deposit: self.! !
 
 
 !Deposit methodsFor: 'balance' stamp: 'HAW 5/25/2019 11:25:02'!
@@ -797,9 +797,9 @@ value
 	^ value! !
 
 
-!Withdraw methodsFor: 'printing' stamp: 'JG 10/24/2023 18:56:17'!
-report
-	^'Extracción por ' , value asString, '.'.! !
+!Withdraw methodsFor: 'printing' stamp: 'FS 10/26/2023 00:58:32'!
+report: Reporter
+	^Reporter Withdraw: self.! !
 
 
 !Withdraw methodsFor: 'balance' stamp: 'HAW 5/25/2019 11:25:15'!
@@ -897,13 +897,9 @@ value
 	^ value! !
 
 
-!TransferInto methodsFor: 'printing' stamp: 'JG 10/24/2023 19:22:29'!
-report
-	^'Entrada por transferencia de ' , value asString, '.'.! !
-
-!TransferInto methodsFor: 'printing' stamp: 'JG 10/23/2023 21:48:34'!
+!TransferInto methodsFor: 'printing' stamp: 'FS 10/26/2023 00:57:47'!
 report: Reporter
-	Reporter inboundTransaction: self.! !
+	^Reporter inboundTransaction: self.! !
 
 
 !TransferInto methodsFor: 'balance' stamp: 'JG 10/21/2023 19:38:44'!
@@ -951,9 +947,9 @@ value
 	^ value! !
 
 
-!TransferOut methodsFor: 'printing' stamp: 'JG 10/24/2023 19:20:14'!
-report
-	^'Salida por transferencia de ' , value asString, '.'.! !
+!TransferOut methodsFor: 'printing' stamp: 'FS 10/26/2023 00:57:42'!
+report: Reporter
+	^Reporter outwardTransaction: self.! !
 
 
 !TransferOut methodsFor: 'balance' stamp: 'JG 10/21/2023 19:38:59'!
@@ -985,28 +981,36 @@ Object subclass: #Report
 	poolDictionaries: ''
 	category: 'Portfolio-Solucion'!
 
-!Report methodsFor: 'initialization' stamp: 'JG 10/23/2023 21:37:54'!
+!Report methodsFor: 'initialization' stamp: 'FS 10/26/2023 01:38:11'!
 initializeFrom: anAccount 
-	accountToReport := anAccount.! !
+	self subclassResponsibility ! !
 
 
-!Report methodsFor: 'printing' stamp: 'JG 10/23/2023 21:51:19'!
+!Report methodsFor: 'printing' stamp: 'FS 10/26/2023 01:12:52'!
 Deposit: transaction
-	^ 'Deposito por ' ,transaction value asString,'.'! !
+	^self subclassResponsibility .! !
 
-!Report methodsFor: 'printing' stamp: 'JG 10/23/2023 21:43:10'!
-Withdraw: transaction! !
+!Report methodsFor: 'printing' stamp: 'FS 10/26/2023 01:34:50'!
+NetWorth: anAccount.
+	^'Balance = ', (anAccount balance) asString, '.'
+	! !
 
-!Report methodsFor: 'printing' stamp: 'JG 10/23/2023 21:43:25'!
-inboundTransaction: transaction! !
+!Report methodsFor: 'printing' stamp: 'FS 10/26/2023 01:12:48'!
+Withdraw: transaction
+	^self subclassResponsibility .! !
 
-!Report methodsFor: 'printing' stamp: 'JG 10/23/2023 21:43:29'!
-outwardTransaction: transaction! !
+!Report methodsFor: 'printing' stamp: 'FS 10/26/2023 01:12:43'!
+inboundTransaction: transaction
+	^self subclassResponsibility .! !
+
+!Report methodsFor: 'printing' stamp: 'FS 10/26/2023 01:12:39'!
+outwardTransaction: transaction
+	^self subclassResponsibility .! !
 
 
-!Report methodsFor: 'inspecting' stamp: 'JG 10/24/2023 18:49:51'!
-toString
-	 ^accountToReport  report
+!Report methodsFor: 'inspecting' stamp: 'FS 10/26/2023 01:14:11'!
+value
+	 ^accountToReport  report: self.
 	"AHH okay mira le pasas al objeto el ReportGenerator y ellos te devuelven los mensajes :)"! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -1018,6 +1022,66 @@ Report class
 !Report class methodsFor: 'instance creation' stamp: 'JG 10/23/2023 21:34:20'!
 from: account 
 	^self new initializeFrom: account! !
+
+
+!classDefinition: #SummaryReport category: 'Portfolio-Solucion'!
+Report subclass: #SummaryReport
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Solucion'!
+
+
+!SummaryReport methodsFor: 'printing' stamp: 'FS 10/26/2023 01:12:24'!
+Deposit: transaction
+	^ 'Depósito por ' ,transaction value asString,'.'! !
+
+!SummaryReport methodsFor: 'printing' stamp: 'FS 10/26/2023 01:12:19'!
+Withdraw: transaction
+	^'Extracción por ' ,transaction value asString, '.'.! !
+
+!SummaryReport methodsFor: 'printing' stamp: 'FS 10/26/2023 01:12:09'!
+inboundTransaction: transaction
+	^'Entrada por transferencia de ' , transaction value asString, '.'.! !
+
+!SummaryReport methodsFor: 'printing' stamp: 'FS 10/26/2023 01:12:15'!
+outwardTransaction: transaction
+	^'Salida por transferencia de ' ,transaction value asString, '.'.! !
+
+
+!SummaryReport methodsFor: 'initialization' stamp: 'FS 10/26/2023 01:37:56'!
+initializeFrom: anAccount 
+	accountToReport := anAccount.! !
+
+
+!classDefinition: #TransactionsReport category: 'Portfolio-Solucion'!
+Report subclass: #TransactionsReport
+	instanceVariableNames: 'cummulativeValue'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Solucion'!
+
+!TransactionsReport methodsFor: 'calculate' stamp: 'FS 10/26/2023 01:41:42'!
+Deposit: transaction
+	! !
+
+!TransactionsReport methodsFor: 'calculate' stamp: 'FS 10/26/2023 01:41:39'!
+Withdraw: transaction
+	! !
+
+!TransactionsReport methodsFor: 'calculate' stamp: 'FS 10/26/2023 01:41:20'!
+inboundTransaction: transaction
+	cummulativeValue  := cummulativeValue  + transaction value.! !
+
+!TransactionsReport methodsFor: 'calculate' stamp: 'FS 10/26/2023 01:41:34'!
+outwardTransaction: transaction
+	cummulativeValue  := cummulativeValue  - transaction value.! !
+
+
+!TransactionsReport methodsFor: 'initialization' stamp: 'FS 10/26/2023 01:39:27'!
+initializeFrom: anAccount 
+	accountToReport := anAccount.
+	cummulativeValue  := 0.! !
 
 
 !classDefinition: #Transfer category: 'Portfolio-Solucion'!
