@@ -373,9 +373,9 @@ TestCase subclass: #ReportTest
 	poolDictionaries: ''
 	category: 'Portfolio-Solucion'!
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'FS 10/26/2023 01:14:25'!
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'FS 10/26/2023 14:59:53'!
 test01reportOfEmptyAccountIsEmpty
-	self assert: ((Report from: (ReceptiveAccount new)) value) = (OrderedCollection with: 'Balance = 0.').! !
+	self assert: ((SummaryReport from: (ReceptiveAccount new)) value) = (OrderedCollection with: 'Balance = 0.').! !
 
 !ReportTest methodsFor: 'as yet unclassified' stamp: 'FS 10/26/2023 01:14:36'!
 test02reportOfNonEmptyAccountPrintsTransactionsCorrectly
@@ -414,10 +414,42 @@ test03reportOfNonEmptyAccountPrintsTransfersCorrectly
 	
 	! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'FS 10/26/2023 01:14:45'!
-test04reportOfEmptyPortfolioIsEmpty
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'JG 10/26/2023 15:58:13'!
+test04transactionsReportOfEmptyAccountIsEmpty
 	
-	self assert: ((Report from: (Portfolio new)) value) = (OrderedCollection with: 'Balance = 0.').
+	self assert: ((TransactionsReport from: (ReceptiveAccount new)) value) = (OrderedCollection with: 'Balance = 0.').
+	
+	! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'JG 10/26/2023 16:12:53'!
+test05transactionsReportOfNonEmptyAccountPrintsTransactionsCorrectly
+	|account report finalReport|
+	account := ReceptiveAccount new.
+	Deposit register: 100 on: account.
+	Withdraw register: 50 on:account.
+	report := TransactionsReport from: account.
+	finalReport := OrderedCollection new.
+	finalReport addLast: 'Balance = 0.'.
+	
+	self assert: (report value = finalReport)! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'JG 10/26/2023 16:02:47'!
+test06transactionsReportOfNonEmptyAccountPrintsTransfersCorrectly
+	|account1 account2 report1 finalReport1 report2 finalReport2|
+	account1 := ReceptiveAccount new.
+	account2:= ReceptiveAccount new.
+	Transfer amount: 100 from:account1  to: account2.
+	report1 := TransactionsReport from: account1.
+	report2 := TransactionsReport from: account2.
+	finalReport1 := OrderedCollection new.
+	finalReport1 addLast: 'Balance = -100.'.
+	finalReport2 := OrderedCollection new.
+	finalReport2 addLast: 'Balance = 100.'.
+	
+	self assert: (report1 value = finalReport1 ).
+	self assert: (report2 value = finalReport2).
+	
+	
 	
 	! !
 
@@ -650,14 +682,13 @@ register: aTransaction
 	transactions add: aTransaction 
 ! !
 
-!ReceptiveAccount methodsFor: 'transactions' stamp: 'FS 10/26/2023 01:35:23'!
+!ReceptiveAccount methodsFor: 'transactions' stamp: 'JG 10/26/2023 15:44:05'!
 report: Reporter
 	| cummulative | 
 	cummulative := OrderedCollection new.
 	"high risk transaction"
-	transactions do: [ :hrt | cummulative addLast: (hrt report: Reporter ) ].
-	cummulative addLast: (Reporter NetWorth: self).
-	^cummulative.! !
+	transactions do: [ :hrt | (hrt report: Reporter into: cummulative) ].
+	^(Reporter finalizeReport: self into: cummulative).! !
 
 !ReceptiveAccount methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 transactions 
@@ -757,9 +788,9 @@ value
 	^ value! !
 
 
-!Deposit methodsFor: 'printing' stamp: 'FS 10/26/2023 00:58:22'!
-report: Reporter
-	^Reporter Deposit: self.! !
+!Deposit methodsFor: 'printing' stamp: 'JG 10/26/2023 15:14:13'!
+report: Reporter into: logBook
+	^Reporter Deposit: self into: logBook.! !
 
 
 !Deposit methodsFor: 'balance' stamp: 'HAW 5/25/2019 11:25:02'!
@@ -797,9 +828,9 @@ value
 	^ value! !
 
 
-!Withdraw methodsFor: 'printing' stamp: 'FS 10/26/2023 00:58:32'!
-report: Reporter
-	^Reporter Withdraw: self.! !
+!Withdraw methodsFor: 'printing' stamp: 'JG 10/26/2023 15:16:42'!
+report: Reporter into: logBook
+	^Reporter Withdraw: self into: logBook.! !
 
 
 !Withdraw methodsFor: 'balance' stamp: 'HAW 5/25/2019 11:25:15'!
@@ -897,9 +928,9 @@ value
 	^ value! !
 
 
-!TransferInto methodsFor: 'printing' stamp: 'FS 10/26/2023 00:57:47'!
-report: Reporter
-	^Reporter inboundTransaction: self.! !
+!TransferInto methodsFor: 'printing' stamp: 'JG 10/26/2023 15:19:00'!
+report: Reporter into: logBook
+	^Reporter inboundTransaction: self into: logBook.! !
 
 
 !TransferInto methodsFor: 'balance' stamp: 'JG 10/21/2023 19:38:44'!
@@ -947,9 +978,9 @@ value
 	^ value! !
 
 
-!TransferOut methodsFor: 'printing' stamp: 'FS 10/26/2023 00:57:42'!
-report: Reporter
-	^Reporter outwardTransaction: self.! !
+!TransferOut methodsFor: 'printing' stamp: 'JG 10/26/2023 15:19:55'!
+report: Reporter  into: logBook
+	^Reporter outwardTransaction: self into: logBook.! !
 
 
 !TransferOut methodsFor: 'balance' stamp: 'JG 10/21/2023 19:38:59'!
@@ -990,14 +1021,15 @@ initializeFrom: anAccount
 Deposit: transaction
 	^self subclassResponsibility .! !
 
-!Report methodsFor: 'printing' stamp: 'FS 10/26/2023 01:34:50'!
-NetWorth: anAccount.
-	^'Balance = ', (anAccount balance) asString, '.'
-	! !
-
 !Report methodsFor: 'printing' stamp: 'FS 10/26/2023 01:12:48'!
 Withdraw: transaction
 	^self subclassResponsibility .! !
+
+!Report methodsFor: 'printing' stamp: 'JG 10/26/2023 15:48:03'!
+finalizeReport: anAccount into: logBook
+	self subclassResponsibility 
+	
+	! !
 
 !Report methodsFor: 'printing' stamp: 'FS 10/26/2023 01:12:43'!
 inboundTransaction: transaction
@@ -1031,22 +1063,26 @@ Report subclass: #SummaryReport
 	poolDictionaries: ''
 	category: 'Portfolio-Solucion'!
 
+!SummaryReport methodsFor: 'printing' stamp: 'FS 10/26/2023 15:07:16'!
+Deposit: transaction into: logBook
+	logBook addLast: 'Depósito por ' ,transaction value asString,'.'! !
 
-!SummaryReport methodsFor: 'printing' stamp: 'FS 10/26/2023 01:12:24'!
-Deposit: transaction
-	^ 'Depósito por ' ,transaction value asString,'.'! !
+!SummaryReport methodsFor: 'printing' stamp: 'JG 10/26/2023 15:16:11'!
+Withdraw: transaction into: logBook
+	logBook addLast:('Extracción por ' ,transaction value asString, '.').! !
 
-!SummaryReport methodsFor: 'printing' stamp: 'FS 10/26/2023 01:12:19'!
-Withdraw: transaction
-	^'Extracción por ' ,transaction value asString, '.'.! !
+!SummaryReport methodsFor: 'printing' stamp: 'JG 10/26/2023 15:57:10'!
+finalizeReport: anAccount into: logBook
+	logBook addLast: ('Balance = ', (anAccount balance) asString, '.').
+	^logBook! !
 
-!SummaryReport methodsFor: 'printing' stamp: 'FS 10/26/2023 01:12:09'!
-inboundTransaction: transaction
-	^'Entrada por transferencia de ' , transaction value asString, '.'.! !
+!SummaryReport methodsFor: 'printing' stamp: 'FS 10/26/2023 15:01:28'!
+inboundTransaction: transaction into: logBook
+	logBook addLast: 'Entrada por transferencia de ' , transaction value asString, '.'.! !
 
-!SummaryReport methodsFor: 'printing' stamp: 'FS 10/26/2023 01:12:15'!
-outwardTransaction: transaction
-	^'Salida por transferencia de ' ,transaction value asString, '.'.! !
+!SummaryReport methodsFor: 'printing' stamp: 'JG 10/26/2023 15:19:30'!
+outwardTransaction: transaction into: logBook
+	logBook addLast: ('Salida por transferencia de ' ,transaction value asString, '.').! !
 
 
 !SummaryReport methodsFor: 'initialization' stamp: 'FS 10/26/2023 01:37:56'!
@@ -1061,20 +1097,34 @@ Report subclass: #TransactionsReport
 	poolDictionaries: ''
 	category: 'Portfolio-Solucion'!
 
-!TransactionsReport methodsFor: 'calculate' stamp: 'FS 10/26/2023 01:41:42'!
-Deposit: transaction
+!TransactionsReport methodsFor: 'calculate' stamp: 'JG 10/26/2023 15:33:46'!
+Deposit: aDeposit into: logBook
 	! !
 
-!TransactionsReport methodsFor: 'calculate' stamp: 'FS 10/26/2023 01:41:39'!
-Withdraw: transaction
+!TransactionsReport methodsFor: 'calculate' stamp: 'JG 10/26/2023 15:33:31'!
+Withdraw: transaction into: logBook
 	! !
 
-!TransactionsReport methodsFor: 'calculate' stamp: 'FS 10/26/2023 01:41:20'!
-inboundTransaction: transaction
+!TransactionsReport methodsFor: 'calculate' stamp: 'JG 10/26/2023 15:58:37'!
+finalizeReport: anAccount into: logBook
+	logBook addLast: ('Balance = ', cummulativeValue asString, '.').
+	^logBook! !
+
+!TransactionsReport methodsFor: 'calculate' stamp: 'JG 10/26/2023 15:33:56'!
+inboundTransaction: transaction 
+	cummulativeValue  := cummulativeValue  + transaction value.! !
+
+!TransactionsReport methodsFor: 'calculate' stamp: 'JG 10/26/2023 16:06:31'!
+inboundTransaction: transaction into: logBook
+"esto es medio raro"
 	cummulativeValue  := cummulativeValue  + transaction value.! !
 
 !TransactionsReport methodsFor: 'calculate' stamp: 'FS 10/26/2023 01:41:34'!
 outwardTransaction: transaction
+	cummulativeValue  := cummulativeValue  - transaction value.! !
+
+!TransactionsReport methodsFor: 'calculate' stamp: 'JG 10/26/2023 16:06:10'!
+outwardTransaction: transaction into: logBook
 	cummulativeValue  := cummulativeValue  - transaction value.! !
 
 
