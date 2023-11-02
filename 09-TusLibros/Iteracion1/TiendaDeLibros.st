@@ -28,8 +28,8 @@ test03AddingBookToCartMakesItHoldTheBook
 	cart add: 1 copiesOf: 'ISBNCool'.
 	self assert: (cart listContents includes: 'ISBNCool').! !
 
-!TestCart methodsFor: 'as yet unclassified' stamp: 'JGFS 10/30/2023 20:24:53'!
-test04CannotAddABookFromAnotherEditorial
+!TestCart methodsFor: 'as yet unclassified' stamp: 'JGFS 11/2/2023 14:45:31'!
+test04CannotAddBookFromAnotherEditorial
 	| cart Billiken |
 	Billiken := Editorial createWith: (OrderedCollection with: 'OurOwnCoolBooks').
 	cart := Cart fromEditorial: Billiken.
@@ -42,21 +42,25 @@ test04CannotAddABookFromAnotherEditorial
 		]
 	! !
 
-!TestCart methodsFor: 'as yet unclassified' stamp: 'JGFS 10/30/2023 20:19:27'!
-test05Adding2CopiesMakesItHold2Copies
+!TestCart methodsFor: 'as yet unclassified' stamp: 'JGFS 11/2/2023 14:45:21'!
+test05Adding2CopiesMakesCartHold2Copies
 	| cart Billiken |
 	Billiken := Editorial createWith: (OrderedCollection with: 'OurOwnCoolBooks').
 	cart := Cart fromEditorial: Billiken.
 	cart add: 2 copiesOf: 'OurOwnCoolBooks'.
 	self assert: ((cart listContents occurrencesOf: 'OurOwnCoolBooks') = 2).! !
 
-!TestCart methodsFor: 'as yet unclassified' stamp: 'JGFS 10/30/2023 20:48:51'!
-test06CannotAddZeroBooks
+!TestCart methodsFor: 'as yet unclassified' stamp: 'JGFS 11/2/2023 14:45:13'!
+test06CannotAddZeroOrNegativeBooks
 	| cart Billiken |
 	Billiken := Editorial createWith: (OrderedCollection with: 'OurOwnCoolBooks').
 	cart := Cart fromEditorial: Billiken.
-	cart add: 0 copiesOf: 'OurOwnCoolBooks'.
-	self deny: (cart listContents includes: 'OurOwnCoolBooks').! !
+	self should: [ cart add: -1 copiesOf: 'OurOwnCoolBooks'. ]
+	raise: Error
+	withExceptionDo: [ :error |
+		self deny: ((cart listContents) includes: 'OurOwnCoolBooks').
+		self assert: error messageText equals: Cart InvalidAmount.
+		]! !
 
 
 !classDefinition: #TestEditorial category: 'TiendaDeLibros'!
@@ -91,9 +95,10 @@ Object subclass: #Cart
 	poolDictionaries: ''
 	category: 'TiendaDeLibros'!
 
-!Cart methodsFor: 'as yet unclassified' stamp: 'JGFS 10/30/2023 20:26:00'!
+!Cart methodsFor: 'as yet unclassified' stamp: 'JGFS 11/2/2023 14:42:19'!
 add: aQuantity copiesOf: aBookISBN
-	(editorial hasBook: aBookISBN ) ifTrue:
+	((editorial hasBook: aBookISBN) and: (self amountIsStrictlyPositive: aQuantity)) 
+	ifTrue:
 		[ contents add: aBookISBN withOccurrences: aQuantity]
 		ifFalse:
 		[^self error: Editorial NotMyBookNotMyMonkeys]! !
@@ -101,6 +106,11 @@ add: aQuantity copiesOf: aBookISBN
 !Cart methodsFor: 'as yet unclassified' stamp: 'JGFS 10/30/2023 20:05:39'!
 addBook: aBookISBN
 	(editorial hasBook: aBookISBN ) ifTrue: [ contents add: aBookISBN.].! !
+
+!Cart methodsFor: 'as yet unclassified' stamp: 'JGFS 11/2/2023 14:43:19'!
+amountIsStrictlyPositive: aQuantity
+	aQuantity > 0 ifTrue: [^true]
+				ifFalse:[^self error: Cart InvalidAmount]! !
 
 !Cart methodsFor: 'as yet unclassified' stamp: 'JGFS 10/30/2023 19:55:57'!
 isEmpty
@@ -122,6 +132,10 @@ with: anEditorial
 !classDefinition: 'Cart class' category: 'TiendaDeLibros'!
 Cart class
 	instanceVariableNames: ''!
+
+!Cart class methodsFor: 'instance creation' stamp: 'JGFS 11/2/2023 14:41:35'!
+InvalidAmount
+	^'The amount must be greater than 0'.! !
 
 !Cart class methodsFor: 'instance creation' stamp: 'JGFS 10/30/2023 20:02:20'!
 fromEditorial: anEditorial
