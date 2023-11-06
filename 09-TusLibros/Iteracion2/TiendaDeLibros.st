@@ -12,39 +12,40 @@ createCatalogue
 	catalogue at: 'OurOwnCoolBooks' put: 10.
 	^catalogue.! !
 
-!TestCaja methodsFor: 'as yet unclassified' stamp: 'JGFS 11/5/2023 23:29:04'!
+!TestCaja methodsFor: 'as yet unclassified' stamp: 'JGFS 11/6/2023 10:17:52'!
 expiredCard
 	|expiration|
-	expiration := GregorianMonthOfYear year: 2020 monthNumber: 1. 
+	expiration := FixedGregorianDate yesterday .
 	^CreditCard withNumber: 000000000000 expirationDate: expiration owner: 'pepe'.
 	! !
 
-!TestCaja methodsFor: 'as yet unclassified' stamp: 'JGFS 11/5/2023 23:43:37'!
+!TestCaja methodsFor: 'as yet unclassified' stamp: 'JGFS 11/6/2023 10:32:50'!
 test01CantCheckoutWhenCartIsEmpty
-	|cart catalogue card cashier|
+	|cart catalogue card cashier logbook|
 	catalogue := self createCatalogue.
 	cart := Cart fromCatalogue: catalogue .
 	card := self validCard.
 	cashier := Cashier new.
+	logbook :=OrderedCollection new.
 	
-	self should: [ cashier checkout: cart withCard: card]
+	self should: [ cashier checkout: cart withCard: card onRegister: logbook]
 	raise: Error
 	withExceptionDo: [ :error |
 		self assert: error messageText equals: Cashier emptyCart.
-		]
-	
+		].
 	! !
 
-!TestCaja methodsFor: 'as yet unclassified' stamp: 'JGFS 11/5/2023 23:45:17'!
+!TestCaja methodsFor: 'as yet unclassified' stamp: 'JGFS 11/6/2023 10:33:31'!
 test02CantCheckoutWhenCardIsExpired
-	|cart catalogue card cashier|
+	|cart catalogue card cashier logbook|
 	catalogue := self createCatalogue.
 	cart := Cart fromCatalogue: catalogue .
 	cart add: 1 copiesOf: 'OurOwnCoolBooks'.
-	card := self expiredCard .
+	card := self expiredCard.
 	cashier := Cashier new.
+	logbook :=OrderedCollection new.
 	
-	self should: [ cashier checkout: cart withCard: card]
+	self should: [ cashier checkout: cart withCard: card onRegister: logbook]
 	raise: Error	
 	withExceptionDo: [ :error |
 		self assert: error messageText equals: Cashier expiredCard.
@@ -52,22 +53,41 @@ test02CantCheckoutWhenCardIsExpired
 	
 	! !
 
-!TestCaja methodsFor: 'as yet unclassified' stamp: 'JGFS 11/5/2023 23:36:30'!
+!TestCaja methodsFor: 'as yet unclassified' stamp: 'JGFS 11/6/2023 10:34:01'!
 test03PurchaseRendersCartEmpty
-	|cart editorial|
-	editorial := OrderedCollection with: 'niceBook'.
-	cart := Cart fromCatalogue: editorial.
-	cart add: 2 copiesOf: 'niceBook'.
-	Cashier buy: cart usingCard: '1111 2222 3333 4444' expiresOn: (GregorianMonthOfYear yearNumber: 2024 monthNumber: 8) withOwnerName: 	'Julianda Gorianda'.
+	|cart catalogue card cashier logbook|
+	catalogue := self createCatalogue.
+	cart := Cart fromCatalogue: catalogue .
+	cart add: 1 copiesOf: 'OurOwnCoolBooks'.
+	card := self validCard.
+	cashier := Cashier new.
+	logbook :=OrderedCollection new.
 	
+	cashier checkout: cart withCard: card onRegister: logbook.
 	self assert: cart isEmpty.
 	
 	! !
 
-!TestCaja methodsFor: 'as yet unclassified' stamp: 'JGFS 11/5/2023 23:29:47'!
+!TestCaja methodsFor: 'as yet unclassified' stamp: 'JGFS 11/6/2023 10:36:09'!
+test04SaleIsRegistered
+	|cart catalogue card cashier logbook sale|
+	catalogue := self createCatalogue.
+	cart := Cart fromCatalogue: catalogue .
+	cart add: 1 copiesOf: 'OurOwnCoolBooks'.
+	card := self validCard .
+	cashier := Cashier new.
+	logbook := OrderedCollection new.
+	
+	sale := cashier checkout: cart withCard: card onRegister: logbook.
+	self assert: logbook size = 1.
+	self assert: logbook includes: sale.
+	
+	! !
+
+!TestCaja methodsFor: 'as yet unclassified' stamp: 'JGFS 11/6/2023 10:17:43'!
 validCard
 	|expiration|
-	expiration := GregorianMonthOfYear year: 2027 monthNumber: 1. 
+	expiration := FixedGregorianDate tomorrow .
 	^CreditCard withNumber: 000000000000 expirationDate: expiration owner: 'pepe'.
 	! !
 
@@ -216,7 +236,7 @@ fromCatalogue: anEditorial
 
 !classDefinition: #Cashier category: 'TiendaDeLibros'!
 Object subclass: #Cashier
-	instanceVariableNames: 'clientCart bankcard'
+	instanceVariableNames: 'clientCart bankcard logbook'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TiendaDeLibros'!
@@ -231,17 +251,28 @@ assertCartIsNotEmpty
 ! !
 
 
-!Cashier methodsFor: 'purchasing' stamp: 'JGFS 11/5/2023 23:40:32'!
-checkout: cart withCard: card.
+!Cashier methodsFor: 'purchasing' stamp: 'JGFS 11/6/2023 10:56:37'!
+checkout: cart withCard: card onRegister: logBook.
 	clientCart := cart.
 	bankcard := card.
+	logbook := logBook.
 	self assertCartIsNotEmpty.
 	self assertCardIsValid.
-	self purchaseSuccessful.! !
+	^self purchaseSuccessful.! !
 
-!Cashier methodsFor: 'purchasing' stamp: 'JGFS 11/2/2023 19:27:30'!
+!Cashier methodsFor: 'purchasing' stamp: 'JGFS 11/6/2023 10:56:30'!
 purchaseSuccessful
-	clientCart emptySelf.! !
+	"self chargeCard."
+	^self registerSale.
+	! !
+
+!Cashier methodsFor: 'purchasing' stamp: 'JGFS 11/6/2023 10:57:16'!
+registerSale
+	|sale|
+	sale :=Sale ofTotal: clientCart currentPrice.
+	logbook add: (sale).
+	clientCart emptySelf.
+	^sale! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -271,9 +302,9 @@ initializeWithNumber: Number expirationDate: Expiration owner: ValidOwner
 	expiration := Expiration.
 	validOwner := ValidOwner.! !
 
-!CreditCard methodsFor: 'initialization' stamp: 'JGFS 11/6/2023 00:10:30'!
+!CreditCard methodsFor: 'initialization' stamp: 'JGFS 11/6/2023 10:17:32'!
 isExpired
-	^(expiration < (GregorianMonthOfYear current))! !
+	^(expiration < FixedGregorianDate today)! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -284,3 +315,26 @@ CreditCard class
 !CreditCard class methodsFor: 'instance creation' stamp: 'JGFS 11/5/2023 23:32:47'!
 withNumber: Number expirationDate: Expiration owner: ValidOwner 
 	^self new initializeWithNumber: Number expirationDate: Expiration owner: ValidOwner! !
+
+
+!classDefinition: #Sale category: 'TiendaDeLibros'!
+Object subclass: #Sale
+	instanceVariableNames: 'price'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TiendaDeLibros'!
+
+!Sale methodsFor: 'as yet unclassified' stamp: 'JGFS 11/6/2023 10:53:55'!
+with: totalCost.
+	price := totalCost .! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Sale class' category: 'TiendaDeLibros'!
+Sale class
+	instanceVariableNames: ''!
+
+!Sale class methodsFor: 'as yet unclassified' stamp: 'JGFS 11/6/2023 10:54:01'!
+ofTotal: totalCost.
+	self new with: totalCost.
+	! !
