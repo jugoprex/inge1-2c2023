@@ -1,4 +1,4 @@
-IMPORTANTE:
+mmmmmmmmmmmmmmmmmmmmmmmmmIMPORTANTE:
 El objetivo de este ejercicio es aprender a hacer cambios de diseño encadenando refactorings automatizados, por lo tanto se debe hacer la mayor cantidad de cambios usándolos.
 No vamos a poder verificar que usaron los refactorings cuando podían, traten de ser "sinceros" con ustedes respecto de este requerimiento, además le va a venir muy bien para el parcial conocer bien los refactorings.
 
